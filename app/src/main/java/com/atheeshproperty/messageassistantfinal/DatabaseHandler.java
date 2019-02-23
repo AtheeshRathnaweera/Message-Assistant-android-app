@@ -20,7 +20,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String CONTENT_ONE = "CONTENT_ONE";
     public static final String CONTENT_TWO = "CONTENT_TWO";
     public static final String CONTENT_THREE = "CONTENT_THREE";
-    public static final String CONTENT_FOUR = "SENT_TIME";
+    public static final String CONTENT_FOUR = "CONTENT_FOUR";
+    public static final String SEND_TIME = "SEND_TIME";
     public static final String REPEAT = "REPEAT";
     public static final String MEDIA = "MEDIA";
 
@@ -39,9 +40,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 + TITLE + " TEXT,"
                 + CONTACT_NUMBER + " INTEGER,"
                 + CONTENT_ONE + " TEXT,"
-                + CONTENT_TWO+ " TEXT,"
+                + CONTENT_TWO + " TEXT,"
                 + CONTENT_THREE + " TEXT,"
                 + CONTENT_FOUR + " TEXT,"
+                + SEND_TIME + " TEXT,"
                 + REPEAT + " INTEGER,"
                 + MEDIA + " INTEGER)";
 

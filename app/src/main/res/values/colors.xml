@@ -15,6 +15,7 @@
     <color name ="startcolor">#09c6df</color>
     <color name ="endcolor">#0bccef</color>
     <color name ="homeargb">#80000000</color>
-    <color name ="homeargbIn">#00555555</color>
     <color name="black">#000</color>
+    <color name="coldblack">#232b2b</color>
+    <color name ="red">#FF0000</color>
 </resources>

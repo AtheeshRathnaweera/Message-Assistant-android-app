@@ -1,5 +1,6 @@
 package com.atheeshproperty.messageassistantfinal;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -19,11 +20,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements messages_fragment.OnFragmentInteractionListener,
-                    fragment_birthdays.OnFragmentInteractionListener{
+        fragment_birthdays.OnFragmentInteractionListener {
 
     FloatingActionButton floating;
+    TabLayout tabLayout;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -55,12 +58,14 @@ public class MainActivity extends AppCompatActivity implements messages_fragment
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout = (TabLayout) findViewById(R.id.tabs);
 
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
-        floating =  findViewById(R.id.fab);
+        floating = findViewById(R.id.fab);
+
+        fab_actions();
 
 
     }
@@ -142,16 +147,18 @@ public class MainActivity extends AppCompatActivity implements messages_fragment
         public Fragment getItem(int position) {
             Fragment fragment = null;
 
-            switch(position){
+            switch (position) {
 
-                case 0 :
-                    fragment = messages_fragment.newInstance(null,null);
+                case 0:
+                    fragment = messages_fragment.newInstance(null, null);
+                    Toast.makeText(MainActivity.this, "Add message", Toast.LENGTH_SHORT).show();
 
 
                     break;
 
-                case 1 :
-                    fragment = fragment_birthdays.newInstance(null,null);
+                case 1:
+                    fragment = fragment_birthdays.newInstance(null, null);
+
 
             }
 
@@ -164,4 +171,30 @@ public class MainActivity extends AppCompatActivity implements messages_fragment
             return 2;
         }
     }
+
+    private void fab_actions() {
+
+        floating.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int position = tabLayout.getSelectedTabPosition();
+
+                switch (position) {
+
+                    case 0:
+                        Intent in = new Intent(MainActivity.this, AddNewMessage.class);
+                        startActivity(in);
+                        break;
+
+                    case 1:
+                        Intent iny = new Intent(MainActivity.this,AddNewBirthday.class);
+                        startActivity(iny);
+                        break;
+                }
+            }
+        });
+
+
+
+}
 }
