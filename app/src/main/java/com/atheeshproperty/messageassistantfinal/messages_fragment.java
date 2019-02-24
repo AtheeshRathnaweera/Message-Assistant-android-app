@@ -1,12 +1,22 @@
 package com.atheeshproperty.messageassistantfinal;
 
 import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -27,7 +37,14 @@ public class messages_fragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
+    private RecyclerView recyclerView;
+
     private OnFragmentInteractionListener mListener;
+    private SQLiteDatabase mydb;
+
+    private Context context;
+
+    Handler mainHandler = new Handler();
 
     public messages_fragment() {
         // Required empty public constructor
@@ -58,13 +75,43 @@ public class messages_fragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+        DatabaseHandler DatabaseHelper = new DatabaseHandler(getContext());
+        mydb = DatabaseHelper.getReadableDatabase();
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_messages_fragment, container, false);
+        View view = inflater.inflate(R.layout.fragment_messages_fragment, container, false);
+
+        context = view.getContext();
+        recyclerView = view.findViewById(R.id.HomeMessageRecyclerView);
+
+        LinearLayoutManager layout = new LinearLayoutManager(this.getActivity());
+        recyclerView.setLayoutManager(layout);
+
+        if(recyclerView == null){
+            Log.e("OnCreateView","Recycler view null");
+        }else{
+            Log.e("OnCreateView","Recycler view found.");
+            populateRecyclerView runnable = new populateRecyclerView();
+            new Thread(runnable).start();
+
+        }
+
+        if(context == null){
+            Log.e("OnCreateView","context null");
+
+        }else{
+            Log.e("OnCreateView","context not null"+context.toString());
+        }
+
+
+
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -104,5 +151,77 @@ public class messages_fragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    private class populateRecyclerView implements Runnable{
+
+        populateRecyclerView(){
+
+
+        }
+
+        @Override
+        public void run() {
+
+            Log.e("background status", "Populate home recycler background started.");
+            List<MessageObject> messageItems = new ArrayList<>();
+
+            String allData = " SELECT * FROM MESSAGE_DATA ";
+            Cursor c = mydb.rawQuery(allData, null);
+
+            if (c.moveToFirst()) {
+                do {
+                    MessageObject message = new MessageObject();
+                    message.setId(Integer.parseInt(c.getString(c.getColumnIndex("MESSAGE_ID"))));
+                    message.setTitle(c.getString(c.getColumnIndex("TITLE")));
+                    message.setConatactNumber(c.getString(c.getColumnIndex("CONTACT_NUMBER")));
+                    message.setMessageOne(c.getString(c.getColumnIndex("CONTENT_ONE")));
+                    message.setMessageTwo(c.getString(c.getColumnIndex("CONTENT_TWO")));
+                    message.setMessageThree(c.getString(c.getColumnIndex("CONTENT_THREE")));
+                    message.setMessageFour(c.getString(c.getColumnIndex("CONTENT_FOUR")));
+                    message.setSendTime(c.getString(c.getColumnIndex("SEND_TIME")));
+                    message.setRepeat(c.getString(c.getColumnIndex("REPEAT")));
+                    message.setMedia(c.getString(c.getColumnIndex("MEDIA")));
+
+                    messageItems.add(message);
+                } while (c.moveToNext());
+
+            }
+
+            c.close();
+
+            Log.e("received", "received number of data : " + messageItems.size());
+
+            final MessageDisplayAdapter myAdapter = new MessageDisplayAdapter(context, messageItems);
+
+            mainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Log.e("Handler","Handler started ");
+                    recyclerView.setAdapter(myAdapter);
+                    myAdapter.notifyDataSetChanged();
+                }
+            });
+
+        }
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.e("Message Fragment","OnResume executed.");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.e("Message Fragment","OnPause executed.");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.e("Message Fragment","OnDestroy executed.");
     }
 }

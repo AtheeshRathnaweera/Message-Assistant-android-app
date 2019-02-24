@@ -24,8 +24,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String SEND_TIME = "SEND_TIME";
     public static final String REPEAT = "REPEAT";
     public static final String MEDIA = "MEDIA";
+    public static final String ONCE_SEND = "ONCE_SEND";
 
-
+    //History table
+    public static final String HISTORY_TABLE_NAME = "HISTORY_TABLE";
+    public static final String HISTORY_ID = "HISTORY_ID";
+    public static final String HISTORY_MES_ID = "HISTORY_MES_ID";
+    public static final String HISTORY_MES_TITLE = "HISTORY_MES_TITLE";
+    public static final String HISTORY_MES_NUMBER = "HISTORY_MES_NUMBER";
 
     public DatabaseHandler(Context context) {
 
@@ -38,14 +44,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         String CREATE_MESSAGE_TABLE = " CREATE TABLE " + MESSAGE_TABLE_NAME + "(" +
                 MESSAGE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + TITLE + " TEXT,"
-                + CONTACT_NUMBER + " INTEGER,"
+                + CONTACT_NUMBER + " TEXT,"
                 + CONTENT_ONE + " TEXT,"
                 + CONTENT_TWO + " TEXT,"
                 + CONTENT_THREE + " TEXT,"
                 + CONTENT_FOUR + " TEXT,"
                 + SEND_TIME + " TEXT,"
-                + REPEAT + " INTEGER,"
-                + MEDIA + " INTEGER)";
+                + REPEAT + " TEXT,"
+                + MEDIA + " TEXT,"
+                + ONCE_SEND + " INTEGER)";
 
         db.execSQL(CREATE_MESSAGE_TABLE);
         Log.d("Database Helper", "On create executed.Database created.");

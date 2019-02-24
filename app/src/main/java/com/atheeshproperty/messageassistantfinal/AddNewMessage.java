@@ -1,7 +1,12 @@
 package com.atheeshproperty.messageassistantfinal;
 
+import android.app.Activity;
 import android.app.TimePickerDialog;
+import android.content.ContentValues;
+import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,12 +41,15 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
 
     private Button cancel_button, save_button;
 
-    private String time;
+    private String setTime;
 
     private RadioGroup timeGroup;
     private RadioButton selectedRadioButton;
 
     private CheckBox whatsapp, TextMessage;
+
+    private DatabaseHandler databseHelper;
+    private SQLiteDatabase mydb;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -91,92 +99,185 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
 
     }
 
-    private void saveData(){
+    private void saveData() {
 
         save_button.setOnClickListener(new View.OnClickListener() {
 
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onClick(View v) {
-                if(validatingTheForm()){
-                    Toast.makeText(AddNewMessage.this,"Ready to save",Toast.LENGTH_SHORT).show();
 
-                }else{
-                    Toast.makeText(AddNewMessage.this,"Please fill the fields properly!.",Toast.LENGTH_LONG).show();
+                databseHelper = new DatabaseHandler(getApplicationContext());
+                mydb = databseHelper.getWritableDatabase();
+
+                String title = title_text.getText().toString();
+                String contactNum = contact_number.getText().toString();
+                String messageOne = message_one.getText().toString();
+                String messageTwo = message_two.getText().toString();
+                String messageThree = message_three.getText().toString();
+                String messageFour = message_four.getText().toString();
+
+                int selectedId = timeGroup.getCheckedRadioButtonId();//Get selected repeat button id
+                selectedRadioButton = findViewById(selectedId);
+                String repeatText = (String) selectedRadioButton.getText();//get selected repeat time button text
+
+                int media = 0;
+
+
+                //Maintain an integer value for save media type
+                if (whatsapp.isChecked()) {
+                    media = media + 1;
+                }
+
+                if (TextMessage.isChecked()) {
+                    media = media + 2;
+                }
+
+                String mediaString = String.valueOf(media);
+
+                if (!whatsapp.isChecked() && !TextMessage.isChecked()) {
+                    Log.e("Media selection", "Nothing selected.");
+                }
+
+                if (validatingTheForm(title, contactNum, messageOne, messageTwo, messageThree, messageFour)) {
+
+                    saveDataToDatabase saveRunnable = new saveDataToDatabase(title, contactNum, messageOne, messageTwo, messageThree, messageFour,
+                            repeatText, mediaString);
+                    new Thread(saveRunnable).start();
+
+                    refreshActivity();
+
+
+
+                } else {
+                    Toast.makeText(AddNewMessage.this, "Please fill the fields properly!.", Toast.LENGTH_LONG).show();
                 }
             }
         });
     }
 
+
+    class saveDataToDatabase implements Runnable {
+
+        String titleString;
+        String contactNum;
+        String messageOne;
+        String messageTwo;
+        String messageThree;
+        String messageFour;
+        String repeatText;
+        String media;
+
+        saveDataToDatabase(String title, String contactNum, String messageOne, String messageTwo, String messageThree, String messageFour,
+                           String repeatText, String media) {
+
+            this.titleString = title;
+            this.contactNum = contactNum;
+            this.messageOne = messageOne;
+            this.messageTwo = messageTwo;
+            this.messageThree = messageThree;
+            this.messageFour = messageFour;
+            this.repeatText = repeatText;
+            this.media = media;
+
+        }
+
+        @Override
+        public void run() {
+
+            ContentValues contentValues = new ContentValues();
+
+            contentValues.put("TITLE", titleString);
+            contentValues.put("CONTACT_NUMBER", contactNum);
+            contentValues.put("CONTENT_ONE", messageOne);
+            contentValues.put("CONTENT_TWO", messageTwo);
+            contentValues.put("CONTENT_THREE", messageThree);
+            contentValues.put("CONTENT_FOUR", messageFour);
+            contentValues.put("SEND_TIME", setTime);
+            contentValues.put("REPEAT", repeatText);
+            contentValues.put("MEDIA", media);
+            contentValues.put("ONCE_SEND", 0);
+
+            long res = mydb.insert("MESSAGE_DATA", null, contentValues);
+
+            if (res == -1) {
+                Log.e("Data saving", "not saved error.");
+                AddNewMessage.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(AddNewMessage.this,"Not saved. Error occurred.",Toast.LENGTH_LONG).show();
+                    }
+                });
+
+
+            } else {
+                Log.e("Data saving", "Successful");
+                AddNewMessage.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(AddNewMessage.this,"Saved successfully",Toast.LENGTH_LONG).show();
+                    }
+                });
+
+            }
+        }
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private Boolean validatingTheForm(){
+    private Boolean validatingTheForm(String title, String contactNum, String messageOne, String messageTwo, String messageThree, String messageFour) {
 
-        String title = title_text.getText().toString();
-        String contactNum = contact_number.getText().toString();
-        String messageOne = message_one.getText().toString();
-        String messageTwo = message_two.getText().toString();
-        String messageThree = message_three.getText().toString();
-        String messageFour = message_four.getText().toString();
+        if (title.trim().length() != 0 && isPhoneNumberValid(contactNum) && setTime != null &&
+                validMessageBody(messageOne, messageTwo, messageThree, messageFour) && validateMediaInput()) {
 
-       // int selectedId = timeGroup.getCheckedRadioButtonId();
-        //selectedRadioButton = findViewById(selectedId);
-
-        //String timebuttontext = (String) selectedRadioButton.getText();//get selected time button text
-
-        if(title.trim().length() != 0 && isPhoneNumberValid(contactNum) && time != null &&
-                validMessageBody(messageOne,messageTwo,messageThree,messageFour) && validateMediaInput() ){
-
-            Log.e("Full validation","OK.");
+            Log.e("Full validation", "OK.");
             return true;
 
-        }else{
-            Log.e("Full validation","Error.");
+        } else {
+            Log.e("Full validation", "Error.");
             return false;
         }
     }
 
-    private Boolean validMessageBody(String first, String second,String third, String fourth){
+    private Boolean validMessageBody(String first, String second, String third, String fourth) {
 
 
-        if(first.trim().length() != 0 || second.trim().length() != 0 || third.trim().length() != 0 || fourth.trim().length() != 0){
+        if (first.trim().length() != 0 || second.trim().length() != 0 || third.trim().length() != 0 || fourth.trim().length() != 0) {
 
-            Log.e("Message body","message body validate is OK.");
+            Log.e("Message body", "message body validate is OK.");
             return true;
 
-        }else{
-            Log.e("Message body","message body validate is failed.");
+        } else {
+            Log.e("Message body", "message body validate is failed.");
             return false;
         }
 
     }
 
-    private Boolean validateMediaInput(){
+    private Boolean validateMediaInput() {
 
-        if(whatsapp.isChecked() || TextMessage.isChecked()){
-            Log.e("MediaType","Media type validate is OK.");
+        if (whatsapp.isChecked() || TextMessage.isChecked()) {
+            Log.e("MediaType", "Media type validate is OK.");
             return true;
 
-        }else{
-            Log.e("Media type","error.");
+        } else {
+            Log.e("Media type", "error.");
             return false;
         }
     }
 
-    public boolean isPhoneNumberValid(String phoneNumber)
-    {
+    public boolean isPhoneNumberValid(String phoneNumber) {
         //NOTE: This should probably be a member variable.
         Boolean res = PhoneNumberUtils.isGlobalPhoneNumber(phoneNumber);
 
-        if(res){
-            Log.e("Phone number"," OK.");
+        if (res) {
+            Log.e("Phone number", " OK.");
 
-        }else{
-            Log.e("Phone number","error");
+        } else {
+            Log.e("Phone number", "error");
         }
 
         return res;
     }
-
 
 
     @Override
@@ -184,21 +285,31 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
 
         Calendar calendar = Calendar.getInstance();
 
-        calendar.set(0, 0, 0,hourOfDay,minute,0);
+        calendar.set(0, 0, 0, hourOfDay, minute, 0);
         String timeFormat = new SimpleDateFormat("hh : mm").format(calendar.getTime());
 
-        SimpleDateFormat fullTimeFormatter = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
-        time = fullTimeFormatter.format(calendar.getTime());
+        SimpleDateFormat fullTimeFormatter = new SimpleDateFormat("HH:mm:ss");
+        setTime = fullTimeFormatter.format(calendar.getTime());
 
         String time;
-        if(hourOfDay > 12){
+        if (hourOfDay > 12) {
 
             time = "PM";
-        }else{
+        } else {
             time = "AM";
 
         }
 
-        time_text.setText(timeFormat+" "+time);
+        time_text.setText(timeFormat + " " + time);
     }
+
+    public void refreshActivity() {
+        Intent intent = getIntent();
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        finish();
+        startActivity(intent);
+
+        Log.d("Refresh", "Activity refreshed.");
+    }
+
 }

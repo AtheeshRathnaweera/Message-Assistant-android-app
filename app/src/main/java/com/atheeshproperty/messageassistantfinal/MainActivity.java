@@ -13,6 +13,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -151,7 +152,6 @@ public class MainActivity extends AppCompatActivity implements messages_fragment
 
                 case 0:
                     fragment = messages_fragment.newInstance(null, null);
-                    Toast.makeText(MainActivity.this, "Add message", Toast.LENGTH_SHORT).show();
 
 
                     break;
@@ -187,14 +187,26 @@ public class MainActivity extends AppCompatActivity implements messages_fragment
                         break;
 
                     case 1:
-                        Intent iny = new Intent(MainActivity.this,AddNewBirthday.class);
+                        Intent iny = new Intent(MainActivity.this, AddNewBirthday.class);
                         startActivity(iny);
                         break;
                 }
             }
         });
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.e("Main activity","OnResume executed.");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.e("Main activity","OnPause executed.");
+    }
 
 
-}
 }

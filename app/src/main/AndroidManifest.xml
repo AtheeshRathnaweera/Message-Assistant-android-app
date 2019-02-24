@@ -32,6 +32,11 @@
             android:name=".AddNewBirthday"
             android:label="Add new birthday"/>
 
+        <service
+            android:name=".Services"
+            android:exported="false"
+            android:stopWithTask="false" />
+
     </application>
 
 </manifest>
