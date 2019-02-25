@@ -3,6 +3,7 @@ package com.atheeshproperty.messageassistantfinal;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
@@ -72,7 +73,7 @@ public class MessageDisplayAdapter extends RecyclerView.Adapter<MessageDisplayAd
 
         Log.e("MessageDisplayAdapter","Bind method started.");
 
-        SimpleDateFormat fullTimeFormatter = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
+        SimpleDateFormat fullTimeFormatter = new SimpleDateFormat("HH:mm:ss");
         SimpleDateFormat newFormat = new SimpleDateFormat("HH : mm : ss");
 
         Date date = null;
@@ -104,6 +105,23 @@ public class MessageDisplayAdapter extends RecyclerView.Adapter<MessageDisplayAd
                     @Override
                     public void onClick(View v) {
                         Log.e("View Entry","View button clicked.");
+
+                        Intent in = new Intent(myContext, UpdateAMesage.class);
+                        in.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
+                        in.putExtra("Id",cardData.get(i).getId());
+                        in.putExtra("Title",cardData.get(i).getTitle());
+                        in.putExtra("Number",cardData.get(i).getConatactNumber());
+                        in.putExtra("mOne",cardData.get(i).getMessageOne());
+                        in.putExtra("mTwo",cardData.get(i).getMessageTwo());
+                        in.putExtra("mThree",cardData.get(i).getMessageThree());
+                        in.putExtra("mFour",cardData.get(i).getMessageFour());
+                        in.putExtra("time",cardData.get(i).getSendTime());
+                        in.putExtra("repeat",cardData.get(i).getRepeat());
+                        in.putExtra("media",cardData.get(i).getMedia());
+
+                        myContext.startActivity(in);
+
                         openDialog.dismiss();
                     }
                 });

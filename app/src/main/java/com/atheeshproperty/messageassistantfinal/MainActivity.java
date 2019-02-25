@@ -1,7 +1,9 @@
 package com.atheeshproperty.messageassistantfinal;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -184,11 +186,13 @@ public class MainActivity extends AppCompatActivity implements messages_fragment
                     case 0:
                         Intent in = new Intent(MainActivity.this, AddNewMessage.class);
                         startActivity(in);
+                        startActivityForResult(in,1);
                         break;
 
                     case 1:
                         Intent iny = new Intent(MainActivity.this, AddNewBirthday.class);
                         startActivity(iny);
+                        startActivityForResult(iny,2);
                         break;
                 }
             }
@@ -197,9 +201,29 @@ public class MainActivity extends AppCompatActivity implements messages_fragment
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 1) {
+            if(resultCode == Activity.RESULT_OK) {
+                refreshActivity();
+            }
+        }
+
+        if (requestCode == 2){
+            if (resultCode == Activity.RESULT_OK){
+                refreshActivity();
+            }
+        }
+
+
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         Log.e("Main activity","OnResume executed.");
+
     }
 
     @Override
@@ -208,5 +232,12 @@ public class MainActivity extends AppCompatActivity implements messages_fragment
         Log.e("Main activity","OnPause executed.");
     }
 
+    public void refreshActivity() {
+        Intent intent = getIntent();
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        finish();
+        startActivity(intent);
 
+        Log.d("Refresh", "Activity refreshed.");
+    }
 }

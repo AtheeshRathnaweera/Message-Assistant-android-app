@@ -54,7 +54,9 @@ public class Services extends Service {
             SimpleDateFormat defaultFormatter = new SimpleDateFormat("HH:mm:ss");
 
             AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-            Intent intent = new Intent(Services.this, AlertReceiver.class);
+
+            int requestCode = 0;
+
 
             if (res.moveToFirst()) {
                 do {
@@ -68,12 +70,19 @@ public class Services extends Service {
 
                     //Compare with current time
                     String now = defaultFormatter.format(currentTime.getTime());
-                    String savedSendTime = defaultFormatter.format(time);
+                    Date receivedTimeObj = null;
+                    try {
+                       receivedTimeObj = defaultFormatter.parse(time);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+
+                    String savedSendTime = defaultFormatter.format(receivedTimeObj);
 
                     SimpleDateFormat onlyDateFormatter = new SimpleDateFormat("yyyy-MM-dd");
                     String todaydate = onlyDateFormatter.format(currentTime.getTime());//get today date for create full date object
 
-                    String completeTime = todaydate +"-"+savedSendTime;//Adding today date string with morning time string
+                    String completeTime = todaydate +"-"+time;//Adding today date string with morning time string
 
                     Date savedAlertTime = null;
 
@@ -84,21 +93,34 @@ public class Services extends Service {
                         e.printStackTrace();
                     }
 
+                    Intent intent = new Intent(Services.this, AlertReceiver.class);
                     intent.putExtra("id",id);
 
+                    requestCode = requestCode +1;
+
                         if(repeat.equals("Once")){
-                            Log.e("Not passed alarms","Once alarms ");
+                            Log.e("once alarms","Once alarms ");
                             if(once_send == 0){
 
                                 if(now.compareTo(savedSendTime) < 0){
                                     //not passed
-                                    PendingIntent pendingIntentOnce = PendingIntent.getBroadcast(Services.this,1, intent, 0);
+                                    PendingIntent pendingIntentOnce = PendingIntent.getBroadcast(Services.this,1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                                     alarm.setExact(AlarmManager.RTC_WAKEUP,savedAlertTime.getTime(), pendingIntentOnce);
-                                    Log.e("Not passed alarms","Once alarm set. id: "+id);
+                                    Log.e("Not passed once alarms","Once alarm set. id: "+id);
 
                                 }else{
 
                                     //passed
+                                    Log.e("Passed alarms","Once updated.");
+                                    Calendar c = Calendar.getInstance();
+                                    c.setTime(savedAlertTime);
+                                    c.add(Calendar.DATE,1);
+
+                                    Date newDate = c.getTime();
+
+                                    PendingIntent pendingIntentOnce = PendingIntent.getBroadcast(Services.this,1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                                    alarm.setExact(AlarmManager.RTC_WAKEUP,newDate.getTime(), pendingIntentOnce);
+                                    Log.e("Not passed alarms","Once alarm set. id: "+id+" new date: "+newDate.toString());
 
                                 }
 
@@ -121,21 +143,30 @@ public class Services extends Service {
 
                             if(now.compareTo(updatedTime) < 0){
                                 //not passed
-                                PendingIntent pendingIntentEveryDay = PendingIntent.getBroadcast(Services.this,1, intent, 0);
+                                PendingIntent pendingIntentEveryDay = PendingIntent.getBroadcast(Services.this,1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                                 alarm.setExact(AlarmManager.RTC_WAKEUP,updatedDate.getTime(), pendingIntentEveryDay);
 
                                 Log.e("Not passed alarms","Everyday alarm set. id: "+id + " added minutes: "+addMinutes+" new time: "+updatedDate.toString());
                             }else{
 
                                 //passed
+
+                                Log.e("Passed alarms","Once updated.");
+                                Calendar c = Calendar.getInstance();
+                                c.setTime(updatedDate);
+                                c.add(Calendar.DATE,1);
+
+                                Date newDate = c.getTime();
+
+                                PendingIntent pendingIntentEveryDay = PendingIntent.getBroadcast(Services.this,1, intent,PendingIntent.FLAG_UPDATE_CURRENT );
+                                alarm.setExact(AlarmManager.RTC_WAKEUP,newDate.getTime(), pendingIntentEveryDay);
+
+                                Log.e("Passed alarms","Everyday alarm set. id: "+id + " new time: "+newDate.toString());
+
+
                             }
 
-
-
                         }
-
-
-
 
                 } while (res.moveToNext());
 
@@ -149,6 +180,7 @@ public class Services extends Service {
         }
 
     }
+
 
     @Nullable
     @Override
@@ -170,6 +202,10 @@ public class Services extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Toast.makeText(Services.this, "Message Assistant Service started", Toast.LENGTH_LONG).show();
         Log.d("String Key", "Service is started");
+
+        Thread thread = new Thread(new TheThread(startId));
+        thread.start();
+
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -180,4 +216,6 @@ public class Services extends Service {
 
         super.onDestroy();
     }
+
+
 }

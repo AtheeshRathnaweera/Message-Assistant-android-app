@@ -1,6 +1,8 @@
 package com.atheeshproperty.messageassistantfinal;
 
+import android.app.Activity;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -18,5 +20,17 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
     @Override
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        communicateWithMain();
+        super.onBackPressed();
+    }
+
+    private void communicateWithMain() {
+        Intent intent = new Intent();
+        setResult(Activity.RESULT_OK, intent);
+        finish();
     }
 }

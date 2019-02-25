@@ -1,13 +1,9 @@
 package com.atheeshproperty.messageassistantfinal;
 
-import android.app.Activity;
 import android.app.TimePickerDialog;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -30,8 +26,7 @@ import android.widget.Toast;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-
-public class AddNewMessage extends AppCompatActivity implements TimePickerDialog.OnTimeSetListener {
+public class UpdateAMesage extends AppCompatActivity  implements TimePickerDialog.OnTimeSetListener{
 
     private EditText title_text, contact_number,
             message_one, message_two, message_three,
@@ -43,18 +38,16 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
 
     private String setTime;
 
+    private String id,repeat, media;
+
     private RadioGroup timeGroup;
     private RadioButton selectedRadioButton;
 
     private CheckBox whatsapp, TextMessage;
 
-    private DatabaseHandler databseHelper;
-    private SQLiteDatabase mydb;
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.add_new_message);
 
         title_text = findViewById(R.id.message_title);
@@ -79,6 +72,24 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
         whatsapp = findViewById(R.id.message_type_whatsapp);
         TextMessage = findViewById(R.id.message_type_text);
 
+        Intent intent = getIntent();
+
+        Log.e("Update", "Started");
+
+        Log.e("Intent data", " title : " + intent.getExtras().getString("Title"));
+
+        id = intent.getExtras().getString("Id");
+
+        title_text.setText(intent.getExtras().getString("Title"));
+        contact_number.setText(intent.getExtras().getString("Number"));
+        message_one.setText(intent.getExtras().getString("mOne"));
+        message_two.setText(intent.getExtras().getString("mThree"));
+        message_three.setText(intent.getExtras().getString("mThree"));
+        message_four.setText(intent.getExtras().getString("mFour"));
+        time_text.setText(intent.getExtras().getString("time"));
+        repeat = intent.getExtras().getString("repeat");
+        media = intent.getExtras().getString("media");
+
         time_picker.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -94,21 +105,37 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
             }
         });
 
-        saveData();
+        save_button.setText("Update");
 
+        if (repeat.equals("Once")) {
+            timeGroup.check(R.id.onceButton);
+        } else {
+            timeGroup.check(R.id.everyDayButton);
+        }
 
+        switch (media) {
+            case "1":
+                whatsapp.setChecked(true);
+                break;
+            case "2":
+                TextMessage.setChecked(true);
+                break;
+            case "3":
+                whatsapp.setChecked(true);
+                TextMessage.setChecked(true);
+                break;
+        }
+
+        updatedata();
     }
 
-    private void saveData() {
+    private void updatedata() {
 
         save_button.setOnClickListener(new View.OnClickListener() {
 
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onClick(View v) {
-
-                databseHelper = new DatabaseHandler(getApplicationContext());
-                mydb = databseHelper.getWritableDatabase();
 
                 String title = title_text.getText().toString();
                 String contactNum = contact_number.getText().toString();
@@ -141,13 +168,13 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
 
                 if (validatingTheForm(title, contactNum, messageOne, messageTwo, messageThree, messageFour)) {
 
-                    saveDataToDatabase saveRunnable = new saveDataToDatabase(title, contactNum, messageOne, messageTwo, messageThree, messageFour,
+                    updateDatabse saveRunnable = new updateDatabse(id, title, contactNum, messageOne, messageTwo, messageThree, messageFour,
                             repeatText, mediaString);
                     new Thread(saveRunnable).start();
 
                     refreshActivity();
 
-                    Intent intent = new Intent(AddNewMessage.this, Services.class);
+                    Intent intent = new Intent(UpdateAMesage.this, Services.class);
                     startService(intent);
 
                     Log.e("Service","Service started.");
@@ -155,14 +182,15 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
 
 
                 } else {
-                    Toast.makeText(AddNewMessage.this, "Please fill the fields properly!.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(UpdateAMesage.this, "Please fill the fields properly!.", Toast.LENGTH_LONG).show();
                 }
             }
         });
     }
 
 
-    class saveDataToDatabase implements Runnable {
+
+    class updateDatabse implements Runnable {
 
         String titleString;
         String contactNum;
@@ -172,10 +200,12 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
         String messageFour;
         String repeatText;
         String media;
+        String resId;
 
-        saveDataToDatabase(String title, String contactNum, String messageOne, String messageTwo, String messageThree, String messageFour,
+        updateDatabse(String id, String title, String contactNum, String messageOne, String messageTwo, String messageThree, String messageFour,
                            String repeatText, String media) {
 
+            this.resId = id;
             this.titleString = title;
             this.contactNum = contactNum;
             this.messageOne = messageOne;
@@ -190,6 +220,9 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
         @Override
         public void run() {
 
+            DatabaseHandler handler = new DatabaseHandler(UpdateAMesage.this);
+            SQLiteDatabase mydb = handler.getWritableDatabase();
+
             ContentValues contentValues = new ContentValues();
 
             contentValues.put("TITLE", titleString);
@@ -203,24 +236,25 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
             contentValues.put("MEDIA", media);
             contentValues.put("ONCE_SEND", 0);
 
-            long res = mydb.insert("MESSAGE_DATA", null, contentValues);
+            int res = mydb.update("MESSAGE_DATA", contentValues, "MESSAGE_ID = ?", new String[]{resId});
+            mydb.close();
 
-            if (res == -1) {
-                Log.e("Data saving", "not saved error.");
-                AddNewMessage.this.runOnUiThread(new Runnable() {
+            if (res > 0) {
+                Log.e("Data Updated", "Successful.");
+                UpdateAMesage.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(AddNewMessage.this,"Not saved. Error occurred.",Toast.LENGTH_LONG).show();
+
                     }
                 });
 
 
             } else {
-                Log.e("Data saving", "Successful");
-                AddNewMessage.this.runOnUiThread(new Runnable() {
+                Log.e("Data updating", "failed.");
+                UpdateAMesage.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(AddNewMessage.this,"Saved successfully",Toast.LENGTH_LONG).show();
+                        Toast.makeText(UpdateAMesage.this,"Not updated. Error occurred.",Toast.LENGTH_LONG).show();
                     }
                 });
 
@@ -285,9 +319,9 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
     }
 
 
+
     @Override
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-
         Calendar calendar = Calendar.getInstance();
 
         calendar.set(0, 0, 0, hourOfDay, minute, 0);
@@ -317,10 +351,4 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
 
         Log.d("Refresh", "Activity refreshed.");
     }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-    }
-
 }
