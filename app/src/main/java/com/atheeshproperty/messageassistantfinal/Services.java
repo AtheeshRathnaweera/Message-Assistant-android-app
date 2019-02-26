@@ -48,6 +48,7 @@ public class Services extends Service {
             int id;
             String time = null;
             String repeat = null;
+            int paused ;
             int once_send;
 
             SimpleDateFormat fullTimeFormatter = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
@@ -65,6 +66,7 @@ public class Services extends Service {
                     time = res.getString(res.getColumnIndex("SEND_TIME"));
                     repeat = res.getString(res.getColumnIndex("REPEAT"));
                     once_send = res.getInt(res.getColumnIndex("ONCE_SEND"));
+                    paused = res.getInt(res.getColumnIndex("PAUSE"));
 
                     Calendar currentTime = Calendar.getInstance();//Getting current system time
 

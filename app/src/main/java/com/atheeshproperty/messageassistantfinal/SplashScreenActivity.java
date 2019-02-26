@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -24,12 +25,11 @@ public class SplashScreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         startup();
-
-        checkSMSPermission();
-
         Intent intent = new Intent(this,MainActivity.class);
         startActivity(intent);
         finish();
+
+
 
     }
 
@@ -47,15 +47,7 @@ public class SplashScreenActivity extends AppCompatActivity {
         db.checkExistence();
     }
 
-    public void checkSMSPermission(){
 
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED){
-            Log.e("Message permission"," requested.");
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS},1);
-        }else{
 
-            Log.e("Message permission"," Already granted.");
-        }
 
-    }
 }

@@ -2,6 +2,7 @@ package com.atheeshproperty.messageassistantfinal;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
@@ -15,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,8 +43,11 @@ public class MessageDisplayAdapter extends RecyclerView.Adapter<MessageDisplayAd
 
         public TextView messageTitle;
         public TextView contactNumber;
+        private TextView repeatType;
         public TextView sendTime;
         public CardView itemCard;
+        private ImageButton notification;
+        boolean paused;
 
 
         public messageViewHolder(@NonNull View itemView) {
@@ -51,7 +56,9 @@ public class MessageDisplayAdapter extends RecyclerView.Adapter<MessageDisplayAd
             messageTitle = itemView.findViewById(R.id.diplayMessageName);
             contactNumber = itemView.findViewById(R.id.displayContactNumber);
             sendTime = itemView.findViewById(R.id.displaySendTime);
+            repeatType = itemView.findViewById(R.id.repeatType);
             itemCard = itemView.findViewById(R.id.messageitemcard);
+            notification = itemView.findViewById(R.id.pauseButton);
 
         }
     }
@@ -76,6 +83,8 @@ public class MessageDisplayAdapter extends RecyclerView.Adapter<MessageDisplayAd
         SimpleDateFormat fullTimeFormatter = new SimpleDateFormat("HH:mm:ss");
         SimpleDateFormat newFormat = new SimpleDateFormat("HH : mm : ss");
 
+
+
         Date date = null;
         try {
             date = fullTimeFormatter.parse(cardData.get(i).getSendTime());
@@ -90,6 +99,7 @@ public class MessageDisplayAdapter extends RecyclerView.Adapter<MessageDisplayAd
         messageViewHolder.messageTitle.setText(cardData.get(i).getTitle());
         messageViewHolder.contactNumber.setText(cardData.get(i).getConatactNumber());
         messageViewHolder.sendTime.setText(time);
+        messageViewHolder.repeatType.setText(cardData.get(i).getRepeat());
 
         messageViewHolder.itemCard.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -109,7 +119,8 @@ public class MessageDisplayAdapter extends RecyclerView.Adapter<MessageDisplayAd
                         Intent in = new Intent(myContext, UpdateAMesage.class);
                         in.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 
-                        in.putExtra("Id",cardData.get(i).getId());
+                        String idString = Integer.toString(cardData.get(i).getId());
+                        in.putExtra("Id",idString);
                         in.putExtra("Title",cardData.get(i).getTitle());
                         in.putExtra("Number",cardData.get(i).getConatactNumber());
                         in.putExtra("mOne",cardData.get(i).getMessageOne());
@@ -133,6 +144,10 @@ public class MessageDisplayAdapter extends RecyclerView.Adapter<MessageDisplayAd
 
                         deleteAMessage(cardData.get(i).getId());
 
+                        Intent intent = new Intent(myContext, MainActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                        myContext.startActivity(intent);
                         openDialog.dismiss();
 
                     }
@@ -143,6 +158,37 @@ public class MessageDisplayAdapter extends RecyclerView.Adapter<MessageDisplayAd
             }
 
         });
+
+
+        if(cardData.get(i).getPause() == 0 ){
+            Log.e("Pause","Not paused.");
+            messageViewHolder.notification.setImageResource(R.drawable.ic_notifications_active_black_24dp);
+            messageViewHolder.paused = false;
+
+        }else{
+            messageViewHolder.notification.setImageResource(R.drawable.ic_notifications_off_black_24dp);
+            messageViewHolder.paused = true;
+        }
+
+        messageViewHolder.notification.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(messageViewHolder.paused ){
+
+
+                    messageViewHolder.notification.setImageResource(R.drawable.ic_notifications_active_black_24dp);
+                    updateThePause(cardData.get(i).getId(),0);
+                    messageViewHolder.paused = false;
+
+                }else{
+                    Log.e("Pause","Not paused.");
+                    messageViewHolder.notification.setImageResource(R.drawable.ic_notifications_off_black_24dp);
+                    updateThePause(cardData.get(i).getId(),1);
+                    messageViewHolder.paused = true;
+                }
+            }
+        });
+
 
     }
 
@@ -161,6 +207,30 @@ public class MessageDisplayAdapter extends RecyclerView.Adapter<MessageDisplayAd
             Log.e("Delete Entry","Deleted successfully.");
         }else{
             Log.e("Delete Entry","Delete failed..");
+        }
+
+        mydb.close();
+
+    }
+
+    private void updateThePause(int id, int val){
+        DatabaseHandler handler = new DatabaseHandler(myContext);
+        SQLiteDatabase mydb = handler.getWritableDatabase();
+
+        String idRes= Integer.toString(id);
+
+        ContentValues contentValues = new ContentValues();
+
+        contentValues.put("PAUSE", val);
+
+        int res = mydb.update("MESSAGE_DATA", contentValues, "MESSAGE_ID = ?", new String[]{idRes});
+        mydb.close();
+
+        if(res > 0){
+            Log.e("pause update","Successful.");
+
+        }else{
+            Log.e("pause update","Error.");
         }
 
     }

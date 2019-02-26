@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -182,6 +183,7 @@ public class messages_fragment extends Fragment {
                     message.setSendTime(c.getString(c.getColumnIndex("SEND_TIME")));
                     message.setRepeat(c.getString(c.getColumnIndex("REPEAT")));
                     message.setMedia(c.getString(c.getColumnIndex("MEDIA")));
+                    message.setPause(Integer.parseInt(c.getString(c.getColumnIndex("PAUSE"))));
 
                     messageItems.add(message);
                 } while (c.moveToNext());
@@ -210,6 +212,7 @@ public class messages_fragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+
         Log.e("Message Fragment","OnResume executed.");
     }
 

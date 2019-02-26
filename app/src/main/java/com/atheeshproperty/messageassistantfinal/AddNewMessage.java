@@ -1,18 +1,27 @@
 package com.atheeshproperty.messageassistantfinal;
 
+import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.TimePickerDialog;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.PhoneNumberUtils;
 import android.util.Log;
@@ -28,16 +37,19 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 
 public class AddNewMessage extends AppCompatActivity implements TimePickerDialog.OnTimeSetListener {
 
-    private EditText title_text, contact_number,
+    private EditText title_text,
             message_one, message_two, message_three,
             message_four;
-    private TextView time_text;
-    private ImageButton time_picker;
+
+    private TextView time_text, contact_number;
+    private ImageButton time_picker, openContacts;
 
     private Button cancel_button, save_button;
 
@@ -71,6 +83,8 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
         cancel_button = findViewById(R.id.cancel);
         save_button = findViewById(R.id.save);
 
+        openContacts = findViewById(R.id.contactListOpen);
+
         timeGroup = findViewById(R.id.timeRadioGroup);
         selectedRadioButton = findViewById(R.id.onceButton);
 
@@ -94,9 +108,137 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
             }
         });
 
+        openContacts.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (ContextCompat.checkSelfPermission(AddNewMessage.this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+                    Log.e("Message permission", " requested.");
+                    // ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS},1);
+
+                        ActivityCompat.requestPermissions(AddNewMessage.this, new String[]{Manifest.permission.READ_CONTACTS}, 2);
+
+
+                } else {
+
+                    Log.e("Message permission", " Already granted.");
+                    openTheContactsList();
+
+                }
+
+            }
+        });
+
+        checkMessagePermissionWhenTextClick();
         saveData();
 
 
+    }
+
+    private void checkMessagePermissionWhenTextClick() {
+
+        TextMessage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ContextCompat.checkSelfPermission(AddNewMessage.this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+                    Log.e("Message permission", " requested.");
+                    // ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS},1);
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        ActivityCompat.requestPermissions(AddNewMessage.this, new String[]{Manifest.permission.SEND_SMS}, 1);
+                    } else {
+                        ActivityCompat.requestPermissions(AddNewMessage.this, new String[]{Manifest.permission.SEND_SMS}, 1);
+
+                    }
+                } else {
+
+                    Log.e("Message permission", " Already granted.");
+
+                }
+            }
+        });
+    }
+
+    private void openTheContactsList() {
+
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType(ContactsContract.Contacts.CONTENT_TYPE);
+        startActivityForResult(intent, 1);
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(resultCode == RESULT_OK){
+            switch (requestCode) {
+
+                case 1:
+                    Cursor cursor = null;
+                    String phoneNumber= null;
+                    List<String> allnumbers = new ArrayList<String>();
+                    int phoneIndex = 0;
+
+                    try{
+
+                        assert data != null;
+                        Uri result = data.getData();
+                        assert result != null;
+                        String id = result.getLastPathSegment();
+                        cursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
+                                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=?", new String[] {id},null);
+                        assert cursor != null;
+                        phoneIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DATA);
+
+                        if(cursor.moveToFirst()){
+                            while (!cursor.isAfterLast()){
+                                phoneNumber = cursor.getString(phoneIndex);
+                                allnumbers.add(phoneNumber);
+                                cursor.moveToNext();
+
+                            }
+                        } else{
+                            Toast.makeText(AddNewMessage.this,"No numbers found",Toast.LENGTH_LONG).show();
+                        }
+                    }catch (Exception e){
+                            e.printStackTrace();
+                    } finally {
+                        if(cursor != null){
+                            cursor.close();
+                        }
+
+                        final CharSequence[] items = allnumbers.toArray(new String[allnumbers.size()]);
+                        AlertDialog.Builder builder = new AlertDialog.Builder(AddNewMessage.this);
+                        builder.setTitle("Choose a number");
+                        builder.setItems(items, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String selectedNumber = items[which].toString();
+                                selectedNumber = selectedNumber.replace("-","");
+                                contact_number.setText(selectedNumber);
+                            }
+                        });
+                        AlertDialog alert = builder.create();
+                        if(allnumbers.size() > 1){
+                            alert.show();
+                        }else{
+                            String selectedNumber = phoneNumber;
+                            assert selectedNumber != null;
+                            selectedNumber = selectedNumber.replace("-","");
+                            contact_number.setText(selectedNumber);
+                        }
+
+                        assert phoneNumber != null;
+                        if (phoneNumber.length() == 0){
+                            Toast.makeText(AddNewMessage.this,"No numbers found.",Toast.LENGTH_LONG).show();
+                        }
+                    }
+                    break;
+            }
+        }else{
+            //activity result error action
+        }
     }
 
     private void saveData() {
@@ -122,7 +264,6 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
                 String repeatText = (String) selectedRadioButton.getText();//get selected repeat time button text
 
                 int media = 0;
-
 
                 //Maintain an integer value for save media type
                 if (whatsapp.isChecked()) {
@@ -150,14 +291,14 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
                     Intent intent = new Intent(AddNewMessage.this, Services.class);
                     startService(intent);
 
-                    Log.e("Service","Service started.");
-
-
+                    Log.e("Service", "Service started.");
 
                 } else {
                     Toast.makeText(AddNewMessage.this, "Please fill the fields properly!.", Toast.LENGTH_LONG).show();
                 }
             }
+
+
         });
     }
 
@@ -202,6 +343,7 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
             contentValues.put("REPEAT", repeatText);
             contentValues.put("MEDIA", media);
             contentValues.put("ONCE_SEND", 0);
+            contentValues.put("PAUSE",0);
 
             long res = mydb.insert("MESSAGE_DATA", null, contentValues);
 
@@ -210,7 +352,7 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
                 AddNewMessage.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(AddNewMessage.this,"Not saved. Error occurred.",Toast.LENGTH_LONG).show();
+                        Toast.makeText(AddNewMessage.this, "Not saved. Error occurred.", Toast.LENGTH_LONG).show();
                     }
                 });
 
@@ -220,7 +362,11 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
                 AddNewMessage.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(AddNewMessage.this,"Saved successfully",Toast.LENGTH_LONG).show();
+                        Toast.makeText(AddNewMessage.this, "Saved successfully", Toast.LENGTH_LONG).show();
+                        finish();
+                        Intent intent = new Intent(AddNewMessage.this, MainActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                        startActivity(intent);
                     }
                 });
 
@@ -244,7 +390,6 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
     }
 
     private Boolean validMessageBody(String first, String second, String third, String fourth) {
-
 
         if (first.trim().length() != 0 || second.trim().length() != 0 || third.trim().length() != 0 || fourth.trim().length() != 0) {
 
@@ -306,7 +451,7 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
         }
 
         time_text.setText(timeFormat + " " + time);
-        Log.e("Selected time","Time : "+setTime);
+        Log.e("Selected time", "Time : " + setTime);
     }
 
     public void refreshActivity() {
@@ -320,7 +465,18 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
 
     @Override
     public void onBackPressed() {
+
         super.onBackPressed();
     }
+
+    private void communicateWithMain() {
+        Log.e("Communicate with main", "Executed.");
+        Intent intent = new Intent();
+        setResult(Activity.RESULT_OK, intent);
+        finish();
+
+    }
+
+
 
 }

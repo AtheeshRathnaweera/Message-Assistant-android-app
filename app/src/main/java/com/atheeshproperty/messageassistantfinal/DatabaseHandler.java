@@ -25,6 +25,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String REPEAT = "REPEAT";
     public static final String MEDIA = "MEDIA";
     public static final String ONCE_SEND = "ONCE_SEND";
+    public static final String PAUSE = "PAUSE";
 
     //History table
     public static final String HISTORY_TABLE_NAME = "HISTORY_TABLE";
@@ -52,7 +53,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 + SEND_TIME + " TEXT,"
                 + REPEAT + " TEXT,"
                 + MEDIA + " TEXT,"
-                + ONCE_SEND + " INTEGER)";
+                + ONCE_SEND + " INTEGER,"
+                + PAUSE + " INTEGER)";
 
         db.execSQL(CREATE_MESSAGE_TABLE);
         Log.d("Database Helper", "On create executed.Database created.");

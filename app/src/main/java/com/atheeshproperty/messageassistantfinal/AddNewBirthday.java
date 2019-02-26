@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.TimePicker;
 
 public class AddNewBirthday extends AppCompatActivity implements TimePickerDialog.OnTimeSetListener{
@@ -29,6 +30,7 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
     }
 
     private void communicateWithMain() {
+        Log.e("Communicate with main","Executed.");
         Intent intent = new Intent();
         setResult(Activity.RESULT_OK, intent);
         finish();

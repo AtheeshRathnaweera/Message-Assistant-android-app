@@ -12,6 +12,7 @@ public class MessageObject {
     private String sendTime;
     private String repeat;
     private String media;
+    private int pause;
 
     public MessageObject(){
 
@@ -19,7 +20,7 @@ public class MessageObject {
     }
 
     MessageObject(int id,  String title, String conatctNumber, String messageOne, String messageTwo, String messageThree, String messageFour,
-            String sendTime, String repeat, String media){
+            String sendTime, String repeat, String media, int pause){
 
         this.id = id;
         this.title = title;
@@ -31,6 +32,7 @@ public class MessageObject {
         this.sendTime = sendTime;
         this.repeat = repeat;
         this.media = media;
+        this.pause = pause;
 
     }
 
@@ -40,6 +42,14 @@ public class MessageObject {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public int getPause() {
+        return pause;
+    }
+
+    public void setPause(int pause) {
+        this.pause = pause;
     }
 
     public String getTitle() {

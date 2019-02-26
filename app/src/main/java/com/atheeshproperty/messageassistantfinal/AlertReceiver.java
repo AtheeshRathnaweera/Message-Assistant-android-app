@@ -98,14 +98,14 @@ public class AlertReceiver extends BroadcastReceiver {
             }
             if (media == 2) {
                 //Text message
-                //sendAText(phone_number,messageArray, context);
+                sendAText(phone_number,messageArray, context);
                 Log.e("Text message","Sent");
             }
 
             if (media == 3) {
                 //both
                 sendViaWhatsapp();
-                //sendAText(phone_number,messageArray, context);
+                sendAText(phone_number,messageArray, context);
                 Log.e("Text message","Sent");
 
             }
@@ -120,14 +120,14 @@ public class AlertReceiver extends BroadcastReceiver {
             }
             if (media == 2) {
                 //Text message
-                //sendAText(phone_number, messageArray, context);
+                sendAText(phone_number, messageArray, context);
                 Log.e("Text message","Sent");
             }
 
             if (media == 3) {
                 //both
                 sendViaWhatsapp();
-                //sendAText(phone_number, messageArray, context);
+                sendAText(phone_number, messageArray, context);
                 Log.e("Text message","Sent");
 
             }
@@ -161,7 +161,7 @@ public class AlertReceiver extends BroadcastReceiver {
 
         }else{
 
-            PendingIntent sentPI = PendingIntent.getBroadcast(context,0,new Intent("SENT").putExtra("Title",title),0);
+            PendingIntent sentPI = PendingIntent.getBroadcast(context,0,new Intent("SENT").putExtra("Title",title),PendingIntent.FLAG_UPDATE_CURRENT);
 
             SmsManager sms = SmsManager.getDefault();
             sms.sendTextMessage(number, null, res_message, sentPI, null);
