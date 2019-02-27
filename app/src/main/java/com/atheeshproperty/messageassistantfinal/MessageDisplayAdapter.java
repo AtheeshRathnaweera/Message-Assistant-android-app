@@ -223,11 +223,18 @@ public class MessageDisplayAdapter extends RecyclerView.Adapter<MessageDisplayAd
 
         contentValues.put("PAUSE", val);
 
+        Log.e("Update pause","Updated the entry : "+val);
+
         int res = mydb.update("MESSAGE_DATA", contentValues, "MESSAGE_ID = ?", new String[]{idRes});
         mydb.close();
 
         if(res > 0){
             Log.e("pause update","Successful.");
+
+            Intent intent = new Intent(myContext, Services.class);
+            myContext.startService(intent);
+
+            Log.e("Service refreshed","Successful.");
 
         }else{
             Log.e("pause update","Error.");

@@ -161,7 +161,11 @@ public class AlertReceiver extends BroadcastReceiver {
 
         }else{
 
-            PendingIntent sentPI = PendingIntent.getBroadcast(context,0,new Intent("SENT").putExtra("Title",title),PendingIntent.FLAG_UPDATE_CURRENT);
+            Intent intent = new Intent(context, smsSentReceiver.class);
+            intent.putExtra("Sent","SENT");
+            intent.putExtra("Title",title);
+            PendingIntent sentPI = PendingIntent.getBroadcast(context,1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
 
             SmsManager sms = SmsManager.getDefault();
             sms.sendTextMessage(number, null, res_message, sentPI, null);

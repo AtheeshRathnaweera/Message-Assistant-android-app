@@ -42,7 +42,7 @@ public class Services extends Service {
 
             final long ONE_MINUTE_IN_MILLIS = 60000;
 
-            String query = "SELECT MESSAGE_ID,SEND_TIME,REPEAT,ONCE_SEND FROM MESSAGE_DATA";
+            String query = "SELECT MESSAGE_ID,SEND_TIME,REPEAT,ONCE_SEND,PAUSE FROM MESSAGE_DATA";
             @SuppressLint("Recycle") Cursor res = mydb.rawQuery(query,null);
 
             int id;
@@ -99,6 +99,10 @@ public class Services extends Service {
                     intent.putExtra("id",id);
 
                     requestCode = requestCode +1;
+
+                    if(paused == 0){
+
+                        Log.e("Check paused","Not paused.");
 
                         if(repeat.equals("Once")){
                             Log.e("once alarms","Once alarms ");
@@ -169,6 +173,12 @@ public class Services extends Service {
                             }
 
                         }
+
+                    }else{
+
+                        Log.e("Check paused","paused. Nothing will happen.");
+                        //When found a paused entry
+                    }
 
                 } while (res.moveToNext());
 

@@ -18,7 +18,7 @@ public class smsSentReceiver extends BroadcastReceiver{
         String resString = null;
         String titleRes = null;
         try{
-            resString = intent.getExtras().getString("SENT");
+            resString = intent.getExtras().getString("Sent");
             titleRes = intent.getExtras().getString("Title");
 
         }catch (NullPointerException e){
@@ -36,9 +36,9 @@ public class smsSentReceiver extends BroadcastReceiver{
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
                     .setSmallIcon(R.drawable.ic_access_time_black_24dp)
-                    .setContentTitle("Message Assistant!")
-                    .setContentText("Message title: "+titleRes)
-                    .setStyle(new NotificationCompat.BigTextStyle().bigText("Message title: "+titleRes).bigText("Status: Message sent!"))
+                    .setContentTitle("Message title: "+titleRes)
+                    .setContentText("Status: Message sent!")
+                    //.setStyle(new NotificationCompat.BigTextStyle().setBigContentTitle("Message title: "+titleRes).bigText("Status: Message sent!"))
                     .setVibrate(pattern)
                     .setPriority(Notification.PRIORITY_MAX)
                     .setAutoCancel(true)
@@ -49,7 +49,7 @@ public class smsSentReceiver extends BroadcastReceiver{
                     .setLights(Color.RED, 3000, 3000)
                     .setVisibility(1);
 
-            notificationManager.notify(1, builder.build());
+            notificationManager.notify(2, builder.build());
 
         }
     }

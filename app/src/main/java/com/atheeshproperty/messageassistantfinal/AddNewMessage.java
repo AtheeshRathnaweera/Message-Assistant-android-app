@@ -129,8 +129,46 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
             }
         });
 
+
+        checkWhatsappInstalledOrNot();
         checkMessagePermissionWhenTextClick();
         saveData();
+
+
+    }
+
+    private void checkWhatsappInstalledOrNot(){
+
+        whatsapp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(appInstalledOrNot("com.whatsapp")){
+
+                    Log.e("whatsapp installed","yes");
+
+                }else{
+                    Log.e("whatsapp installed","no");
+
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(AddNewMessage.this);
+                    builder.setTitle("Notice");
+                    builder.setMessage("Whatsapp is not installed in your phone! To use this feature please install whatspp to your phone!");
+
+                    builder.setPositiveButton("Ok!",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.cancel();
+
+                                }
+                            });
+
+                    AlertDialog deleteAlert = builder.create();
+                    deleteAlert.show();
+
+                    whatsapp.setChecked(false);
+                }
+            }
+        });
 
 
     }
@@ -300,6 +338,19 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
 
 
         });
+    }
+
+    private boolean appInstalledOrNot(String uri) {
+        PackageManager pm = getPackageManager();
+        boolean app_installed;
+        try {
+            pm.getPackageInfo(uri, PackageManager.GET_ACTIVITIES);
+            app_installed = true;
+        }
+        catch (PackageManager.NameNotFoundException e) {
+            app_installed = false;
+        }
+        return app_installed;
     }
 
 
