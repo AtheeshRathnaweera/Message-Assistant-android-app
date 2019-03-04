@@ -260,6 +260,16 @@
                 android:textColor="@color/white"/>
 
             <CheckBox
+                android:id="@+id/message_type_text"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:text="Text message"
+                android:textSize="17sp"
+                android:textColor="@color/grey"
+                android:backgroundTint="@color/colorPrimary"/>
+
+            <CheckBox
                 android:id="@+id/message_type_whatsapp"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -269,15 +279,7 @@
                 android:textColor="@color/grey"
                 android:backgroundTint="@color/colorPrimary"/>
 
-            <CheckBox
-                android:id="@+id/message_type_text"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:text="Text message"
-                android:textSize="17sp"
-                android:textColor="@color/grey"
-                android:backgroundTint="@color/colorPrimary"/>
+
 
 
         </TableRow>

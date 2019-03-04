@@ -3,9 +3,11 @@ package com.atheeshproperty.messageassistantfinal;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.TimePickerDialog;
+import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -13,6 +15,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
@@ -250,6 +253,8 @@ public class UpdateAMesage extends AppCompatActivity  implements TimePickerDialo
         }
     }
 
+
+
     private void updatedata() {
 
         save_button.setOnClickListener(new View.OnClickListener() {
@@ -257,6 +262,7 @@ public class UpdateAMesage extends AppCompatActivity  implements TimePickerDialo
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onClick(View v) {
+
 
                 String title = title_text.getText().toString();
                 String contactNum = contact_number.getText().toString();

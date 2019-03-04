@@ -27,6 +27,18 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String ONCE_SEND = "ONCE_SEND";
     public static final String PAUSE = "PAUSE";
 
+    //Birthday data table
+    public static final String BIRTHDAY_TABLE_NAME = "BIRTHDAY_DATA";
+    public static final String BIRTHDAY_ID = "BIRTHDAY_ID";
+    public static final String BIRTHDAY_TITLE = "BIRTHDAY_TITLE";
+    public static final String BIRTHDAY_DATE = "BIRTHDAY_DATE";
+    public static final String BIRTHDAY_CONTACT_NUMBER = "BIRTHDAY_CONTACT_NUMBER";
+    public static final String BIRTHDAY_CONTENT= "BIRTHDAY_CONTENT";
+    public static final String BIRTHDAY_SEND_TIME = "BIRTHDAY_SEND_TIME";
+    public static final String BIRTHDAY_MEDIA = "BIRTHDAY_MEDIA";
+    public static final String BIRTHDAY_REPEAT = "BIRTHDAY_REPEAT";
+    public static final String BIRTHDAY_PAUSE = "BIRTHDAY_PAUSE";
+
     //History table
     public static final String HISTORY_TABLE_NAME = "HISTORY_TABLE";
     public static final String HISTORY_ID = "HISTORY_ID";
@@ -59,12 +71,27 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL(CREATE_MESSAGE_TABLE);
         Log.d("Database Helper", "On create executed.Database created.");
 
+        String CREATE_BIRTHDAY_TABLE = " CREATE TABLE " + BIRTHDAY_TABLE_NAME + "(" +
+                BIRTHDAY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + BIRTHDAY_TITLE + " TEXT,"
+                + BIRTHDAY_DATE + " TEXT,"
+                + BIRTHDAY_CONTACT_NUMBER + " TEXT,"
+                + BIRTHDAY_CONTENT + " TEXT,"
+                + BIRTHDAY_SEND_TIME + " TEXT,"
+                + BIRTHDAY_REPEAT + " TEXT,"
+                + BIRTHDAY_MEDIA + " TEXT,"
+                + BIRTHDAY_PAUSE + " INTEGER)";
+
+        db.execSQL(CREATE_BIRTHDAY_TABLE);
+        Log.d("Database Helper", "On create executed.Database created.");
+
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
         db.execSQL("DROP TABLE IF EXISTS " + MESSAGE_TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + BIRTHDAY_TABLE_NAME);
         onCreate(db);
     }
 
