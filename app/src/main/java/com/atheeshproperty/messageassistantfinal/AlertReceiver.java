@@ -12,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.PowerManager;
 import android.provider.Settings;
@@ -22,8 +23,12 @@ import android.support.v4.content.ContextCompat;
 import android.telephony.SmsManager;
 import android.util.Log;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Random;
+
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 
 public class AlertReceiver extends BroadcastReceiver {
@@ -94,7 +99,7 @@ public class AlertReceiver extends BroadcastReceiver {
 
             if (media == 1) {
                 //wtsapp
-                sendViaWhatsapp();
+                sendViaWhatsapp(phone_number,messageArray, context);
             }
             if (media == 2) {
                 //Text message
@@ -104,7 +109,7 @@ public class AlertReceiver extends BroadcastReceiver {
 
             if (media == 3) {
                 //both
-                sendViaWhatsapp();
+                sendViaWhatsapp(phone_number, messageArray, context);
                 sendAText(phone_number,messageArray, context);
                 Log.e("Text message","Sent");
 
@@ -116,7 +121,7 @@ public class AlertReceiver extends BroadcastReceiver {
         } else {
             if (media == 1) {
                 //wtsapp
-                sendViaWhatsapp();
+                sendViaWhatsapp(phone_number, messageArray, context);
             }
             if (media == 2) {
                 //Text message
@@ -126,7 +131,7 @@ public class AlertReceiver extends BroadcastReceiver {
 
             if (media == 3) {
                 //both
-                sendViaWhatsapp();
+               // sendViaWhatsapp(phone_number, messageArray, context);
                 sendAText(phone_number, messageArray, context);
                 Log.e("Text message","Sent");
 
@@ -137,11 +142,32 @@ public class AlertReceiver extends BroadcastReceiver {
 
     }
 
-    private void sendViaWhatsapp() {
+    private void sendViaWhatsapp(String number, ArrayList<String> messages, Context context) {
+
+        Log.e("Send via whatsapp","Method executed.");
+        int bound = messages.size();
 
         Random rand = new Random();
+        int addMinutes = rand.nextInt(bound);
 
-        int addMinutes = rand.nextInt(4);
+        String res_message = messages.get(addMinutes);
+
+        PackageManager packageManager = context.getPackageManager();
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        try {
+            String url = "https://api.whatsapp.com/send?phone+"+ number + "&text=" + URLEncoder.encode(res_message,"UTF-8");
+            i.setPackage("com.whatsapp");
+            i.setData(Uri.parse(url));
+            if(i.resolveActivity(packageManager) != null){
+                context.startActivity(i);
+
+            }
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
 
     }
 
