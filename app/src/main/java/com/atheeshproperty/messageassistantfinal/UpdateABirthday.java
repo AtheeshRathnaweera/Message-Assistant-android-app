@@ -1,7 +1,6 @@
 package com.atheeshproperty.messageassistantfinal;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -40,7 +39,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-public class AddNewBirthday extends AppCompatActivity implements TimePickerDialog.OnTimeSetListener, DatePickerDialog.OnDateSetListener{
+public class UpdateABirthday extends AppCompatActivity implements TimePickerDialog.OnTimeSetListener, DatePickerDialog.OnDateSetListener {
 
     private String setTime, setDate;
     private TextView time_text, contact_number, birth_date;
@@ -56,6 +55,9 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
 
     private DatabaseHandler databseHelper;
     private SQLiteDatabase mydb;
+
+    String id, repeat, media;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,33 +82,26 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
         cancel_button = findViewById(R.id.cancel);
         save_button = findViewById(R.id.save);
 
-        cancel_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
+        save_button.setText("Update");
 
-        contact_list_open.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        Intent intent = getIntent();
 
-                if (ContextCompat.checkSelfPermission(AddNewBirthday.this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-                    Log.e("Message permission", " requested.");
-                    // ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS},1);
+        Log.e("Update", "Started");
 
-                    ActivityCompat.requestPermissions(AddNewBirthday.this, new String[]{Manifest.permission.READ_CONTACTS}, 3);
+        id = intent.getExtras().getString("Id");
 
+        person_name.setText(intent.getExtras().getString("Name"));
+        contact_number.setText(intent.getExtras().getString("Number"));
+        content.setText(intent.getExtras().getString("Message"));
+        time_text.setText(intent.getExtras().getString("time"));
+        birth_date.setText(intent.getExtras().getString("Bdate"));
 
-                } else {
+        setTime = intent.getExtras().getString("time");
+        repeat = intent.getExtras().getString("repeat");
+        media = intent.getExtras().getString("media");
+        setDate = intent.getExtras().getString("Bdate");
 
-                    Log.e("Message permission", " Already granted.");
-                    openTheContactsList();
-
-                }
-
-            }
-        });
+        Log.e("Checking"," Person name: "+person_name.getText());
 
         message_time_picker.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -124,9 +119,57 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
             }
         });
 
-        checkWhatsappInstalledOrNot();
+        cancel_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+
+        if (repeat.equals("Once")) {
+            timeGroup.check(R.id.onceButton);
+        } else {
+            timeGroup.check(R.id.everyDayButton);
+        }
+
+
+        switch (media) {
+            case "1":
+                whatsapp.setChecked(true);
+                break;
+            case "2":
+                TextMessage.setChecked(true);
+                break;
+            case "3":
+                whatsapp.setChecked(true);
+                TextMessage.setChecked(true);
+                break;
+        }
+
+        contact_list_open.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (ContextCompat.checkSelfPermission(UpdateABirthday.this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+                    Log.e("Message permission", " requested.");
+
+                    ActivityCompat.requestPermissions(UpdateABirthday.this, new String[]{Manifest.permission.READ_CONTACTS}, 2);
+
+
+                } else {
+
+                    Log.e("Message permission", " Already granted.");
+                    openTheContactsList();
+
+                }
+
+            }
+        });
+
         checkMessagePermissionWhenTextClick();
-        saveData();
+        checkWhatsappInstalledOrNot();
+        updateData();
+
     }
 
     private void checkWhatsappInstalledOrNot(){
@@ -141,7 +184,7 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
                 }else{
                     Log.e("whatsapp installed","no");
 
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(AddNewBirthday.this);
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(UpdateABirthday.this);
                     builder.setTitle("Notice");
                     builder.setMessage("Whatsapp is not installed in your phone! To use this feature please install whatspp to your phone!");
 
@@ -178,73 +221,12 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
         return app_installed;
     }
 
-
-    private void checkMessagePermissionWhenTextClick() {
-
-        TextMessage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (ContextCompat.checkSelfPermission(AddNewBirthday.this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
-                    Log.e("Message permission", " requested.");
-                    // ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS},1);
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        ActivityCompat.requestPermissions(AddNewBirthday.this, new String[]{Manifest.permission.SEND_SMS}, 1);
-                    } else {
-                        ActivityCompat.requestPermissions(AddNewBirthday.this, new String[]{Manifest.permission.SEND_SMS}, 1);
-
-                    }
-                } else {
-
-                    Log.e("Message permission", " Already granted.");
-
-                }
-            }
-        });
-    }
-
     private void openTheContactsList() {
 
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType(ContactsContract.Contacts.CONTENT_TYPE);
         startActivityForResult(intent, 1);
 
-    }
-
-    @Override
-    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-        Calendar calendar = Calendar.getInstance();
-
-        calendar.set(0, 0, 0, hourOfDay, minute, 0);
-        String timeFormat = new SimpleDateFormat("hh : mm").format(calendar.getTime());
-
-        SimpleDateFormat fullTimeFormatter = new SimpleDateFormat("HH:mm:ss");
-        setTime = fullTimeFormatter.format(calendar.getTime());
-
-        String time;
-        if (hourOfDay > 12) {
-
-            time = "PM";
-        } else {
-            time = "AM";
-
-        }
-
-        time_text.setText(timeFormat + " " + time);
-        Log.e("Selected time", "Time : " + setTime);
-    }
-
-    @Override
-    public void onBackPressed() {
-
-        super.onBackPressed();
-    }
-
-    private void communicateWithMain() {
-        Log.e("Communicate with main","Executed.");
-        Intent intent = new Intent();
-        setResult(Activity.RESULT_OK, intent);
-        finish();
     }
 
     @Override
@@ -279,17 +261,17 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
 
                             }
                         } else{
-                            Toast.makeText(AddNewBirthday.this,"No numbers found",Toast.LENGTH_LONG).show();
+                            Toast.makeText(UpdateABirthday.this,"No numbers found",Toast.LENGTH_LONG).show();
                         }
                     }catch (Exception e){
-                        e.printStackTrace();
+
                     } finally {
                         if(cursor != null){
                             cursor.close();
                         }
 
                         final CharSequence[] items = allnumbers.toArray(new String[allnumbers.size()]);
-                        AlertDialog.Builder builder = new AlertDialog.Builder(AddNewBirthday.this);
+                        AlertDialog.Builder builder = new AlertDialog.Builder(UpdateABirthday.this);
                         builder.setTitle("Choose a number");
                         builder.setItems(items, new DialogInterface.OnClickListener() {
                             @Override
@@ -304,14 +286,12 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
                             alert.show();
                         }else{
                             String selectedNumber = phoneNumber;
-                            assert selectedNumber != null;
                             selectedNumber = selectedNumber.replace("-","");
                             contact_number.setText(selectedNumber);
                         }
 
-                        assert phoneNumber != null;
                         if (phoneNumber.length() == 0){
-                            Toast.makeText(AddNewBirthday.this,"No numbers found.",Toast.LENGTH_LONG).show();
+                            Toast.makeText(UpdateABirthday.this,"No numbers found.",Toast.LENGTH_LONG).show();
                         }
                     }
                     break;
@@ -322,9 +302,9 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private Boolean validatingTheForm(String name, String contactNum, String message) {
+    private Boolean validatingTheForm(String person, String contactNum, String message) {
 
-        if (name.trim().length() != 0 && isPhoneNumberValid(contactNum) && setTime != null &&
+        if (person.trim().length() != 0 && isPhoneNumberValid(contactNum) && setTime != null &&
                 setDate != null && validMessageBody(message) && validateMediaInput()) {
 
             Log.e("Full validation", "OK.");
@@ -336,9 +316,10 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
         }
     }
 
-    private Boolean validMessageBody(String message) {
+    private Boolean validMessageBody(String content) {
 
-        if (message.trim().length() != 0) {
+
+        if (content.trim().length() != 0) {
 
             Log.e("Message body", "message body validate is OK.");
             return true;
@@ -376,7 +357,69 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
         return res;
     }
 
-    private void saveData() {
+
+    @Override
+    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.set(0, 0, 0, hourOfDay, minute, 0);
+        String timeFormat = new SimpleDateFormat("hh : mm").format(calendar.getTime());
+
+        SimpleDateFormat fullTimeFormatter = new SimpleDateFormat("HH:mm:ss");
+        setTime = fullTimeFormatter.format(calendar.getTime());
+
+        String time;
+        if (hourOfDay > 12) {
+
+            time = "PM";
+        } else {
+            time = "AM";
+
+        }
+
+        time_text.setText(timeFormat + " " + time);
+        Log.e("Selected time", "Time : " + setTime);
+    }
+
+    @Override
+    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.set(year, month, dayOfMonth, 0, 0, 0);
+        String timeFormat = new SimpleDateFormat("MMMM dd").format(calendar.getTime());
+
+        SimpleDateFormat fullTimeFormatter = new SimpleDateFormat("yyyy-MM-dd");
+        setDate = fullTimeFormatter.format(calendar.getTime());
+
+        birth_date.setText(timeFormat);
+        Log.e("Selected Date", "Date : " + setDate);
+    }
+
+    private void checkMessagePermissionWhenTextClick() {
+
+        TextMessage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ContextCompat.checkSelfPermission(UpdateABirthday.this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+                    Log.e("Message permission", " requested.");
+                    // ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS},1);
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        ActivityCompat.requestPermissions(UpdateABirthday.this, new String[]{Manifest.permission.SEND_SMS}, 1);
+                    } else {
+                        ActivityCompat.requestPermissions(UpdateABirthday.this, new String[]{Manifest.permission.SEND_SMS}, 1);
+
+                    }
+                } else {
+
+                    Log.e("Message permission", " Already granted.");
+
+                }
+            }
+        });
+    }
+
+    private void updateData() {
 
         save_button.setOnClickListener(new View.OnClickListener() {
 
@@ -414,19 +457,19 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
 
                 if (validatingTheForm(title, contactNum, message)) {
 
-                    AddNewBirthday.saveDataToDatabase saveRunnable = new AddNewBirthday.saveDataToDatabase(title, contactNum, message,
+                    UpdateABirthday.updateDataToDatabase saveRunnable = new UpdateABirthday.updateDataToDatabase(title, contactNum, message,
                             repeatText, mediaString);
                     new Thread(saveRunnable).start();
 
                     refreshActivity();
 
                     //Intent intent = new Intent(AddNewBirthday.this, Services.class);
-                   // startService(intent);
+                    // startService(intent);
 
-                   // Log.e("Service", "Service started.");
+                    // Log.e("Service", "Service started.");
 
                 } else {
-                    Toast.makeText(AddNewBirthday.this, "Please fill the fields properly!.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(UpdateABirthday.this, "Please fill the fields properly!.", Toast.LENGTH_LONG).show();
                 }
             }
 
@@ -434,31 +477,7 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
         });
     }
 
-    public void refreshActivity() {
-        Intent intent = getIntent();
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        finish();
-        startActivity(intent);
-
-        Log.d("Refresh", "Activity refreshed.");
-    }
-
-    @Override
-    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-        Calendar calendar = Calendar.getInstance();
-
-        calendar.set(year, month, dayOfMonth, 0, 0, 0);
-        String timeFormat = new SimpleDateFormat("MMMM dd").format(calendar.getTime());
-
-        SimpleDateFormat fullTimeFormatter = new SimpleDateFormat("yyyy-MM-dd");
-        setDate = fullTimeFormatter.format(calendar.getTime());
-
-        birth_date.setText(timeFormat);
-        Log.e("Selected Date", "Date : " + setDate);
-
-    }
-
-    class saveDataToDatabase implements Runnable {
+    class updateDataToDatabase implements Runnable {
 
         String name;
         String contactNum;
@@ -466,7 +485,7 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
         String repeatText;
         String media;
 
-        saveDataToDatabase(String name, String contactNum, String message,
+        updateDataToDatabase(String name, String contactNum, String message,
                            String repeatText, String media) {
 
             this.name = name;
@@ -496,22 +515,22 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
 
             if (res == -1) {
                 Log.e("Data saving", "not saved error.");
-                AddNewBirthday.this.runOnUiThread(new Runnable() {
+                UpdateABirthday.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(AddNewBirthday.this, "Not saved. Error occurred.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(UpdateABirthday.this, "Not saved. Error occurred.", Toast.LENGTH_LONG).show();
                     }
                 });
 
 
             } else {
                 Log.e("Data saving", "Successful");
-                AddNewBirthday.this.runOnUiThread(new Runnable() {
+                UpdateABirthday.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(AddNewBirthday.this, "Saved successfully", Toast.LENGTH_LONG).show();
+                        Toast.makeText(UpdateABirthday.this, "Saved successfully", Toast.LENGTH_LONG).show();
                         finish();
-                        Intent intent = new Intent(AddNewBirthday.this, MainActivity.class);
+                        Intent intent = new Intent(UpdateABirthday.this, MainActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                         startActivity(intent);
                     }
@@ -519,6 +538,16 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
 
             }
         }
+    }
+
+
+    public void refreshActivity() {
+        Intent intent = getIntent();
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        finish();
+        startActivity(intent);
+
+        Log.d("Refresh", "Activity refreshed.");
     }
 
 

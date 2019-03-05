@@ -1,14 +1,10 @@
 package com.atheeshproperty.messageassistantfinal;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -18,27 +14,26 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class MessageDisplayAdapter extends RecyclerView.Adapter<MessageDisplayAdapter.messageViewHolder> {
+public class BirthdayMessageDisplayAdapter extends RecyclerView.Adapter<BirthdayMessageDisplayAdapter.BirthdayMessageViewHolder>{
 
     private Context myContext;
-    private List<MessageObject> cardData;
+    private List<BirthdayMessageObject> cardData;
 
-    public MessageDisplayAdapter(Context myContext,  List<MessageObject> cardData){
+    public BirthdayMessageDisplayAdapter(Context myContext,  List<BirthdayMessageObject> cardData){
         this.myContext = myContext;
         this.cardData = cardData;
 
     }
 
 
-    public static class messageViewHolder extends RecyclerView.ViewHolder {
+
+    public static class BirthdayMessageViewHolder extends RecyclerView.ViewHolder {
 
 
         public TextView messageTitle;
@@ -50,7 +45,7 @@ public class MessageDisplayAdapter extends RecyclerView.Adapter<MessageDisplayAd
         boolean paused;
 
 
-        public messageViewHolder(@NonNull View itemView) {
+        public BirthdayMessageViewHolder(@NonNull View itemView) {
             super(itemView);
 
             messageTitle = itemView.findViewById(R.id.diplayMessageName);
@@ -63,43 +58,54 @@ public class MessageDisplayAdapter extends RecyclerView.Adapter<MessageDisplayAd
         }
     }
 
-
     @NonNull
     @Override
-    public messageViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-
+    public BirthdayMessageViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup,int i) {
         Log.e("MessageDisplayAdapter","Adapter started.");
         LayoutInflater myinflater = LayoutInflater.from(myContext);
         View view = myinflater.inflate(R.layout.message_item_display_layout, viewGroup,  false);
-        return new messageViewHolder(view);
-
+        return new BirthdayMessageDisplayAdapter.BirthdayMessageViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final messageViewHolder messageViewHolder, final int i) {
-
-        Log.e("MessageDisplayAdapter","Bind method started.");
+    public void onBindViewHolder(@NonNull BirthdayMessageViewHolder birthdayMessageViewHolder,final int i) {
+        Log.e("BirthdayMessageDisplay","Bind method started.");
 
         SimpleDateFormat fullTimeFormatter = new SimpleDateFormat("HH:mm:ss");
         SimpleDateFormat newFormat = new SimpleDateFormat("HH : mm : ss");
+        SimpleDateFormat fullDateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat newUpdateFormat = new SimpleDateFormat("MMMM dd");
 
         Date date = null;
+        Date Bdate = null;
         try {
             date = fullTimeFormatter.parse(cardData.get(i).getSendTime());
+            Bdate = fullDateFormatter.parse(cardData.get(i).getBirthdate());
         } catch (ParseException e) {
             e.printStackTrace();
         }
 
         String time = newFormat.format(date);
+        String birthdate = newUpdateFormat.format(Bdate);
 
         Log.e("Date","this is the time : "+time);
 
-        messageViewHolder.messageTitle.setText(cardData.get(i).getTitle());
-        messageViewHolder.contactNumber.setText(cardData.get(i).getConatactNumber());
-        messageViewHolder.sendTime.setText(time);
-        messageViewHolder.repeatType.setText(cardData.get(i).getRepeat());
+        birthdayMessageViewHolder.messageTitle.setText(cardData.get(i).getName());
+        birthdayMessageViewHolder.contactNumber.setText(birthdate);
+        birthdayMessageViewHolder.sendTime.setVisibility(View.INVISIBLE);
+        birthdayMessageViewHolder.repeatType.setText(time);
 
-        messageViewHolder.itemCard.setOnLongClickListener(new View.OnLongClickListener() {
+        if(cardData.get(i).getPause() == 0 ){
+            Log.e("Pause","Not paused.");
+            birthdayMessageViewHolder.notification.setImageResource(R.drawable.ic_notifications_active_black_24dp);
+            birthdayMessageViewHolder.paused = false;
+
+        }else{
+            birthdayMessageViewHolder.notification.setImageResource(R.drawable.ic_notifications_off_black_24dp);
+            birthdayMessageViewHolder.paused = true;
+        }
+
+        birthdayMessageViewHolder.itemCard.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
 
@@ -114,17 +120,15 @@ public class MessageDisplayAdapter extends RecyclerView.Adapter<MessageDisplayAd
                     public void onClick(View v) {
                         Log.e("View Entry","View button clicked.");
 
-                        Intent in = new Intent(myContext, UpdateAMesage.class);
+                        Intent in = new Intent(myContext, UpdateABirthday.class);
                         in.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 
                         String idString = Integer.toString(cardData.get(i).getId());
                         in.putExtra("Id",idString);
-                        in.putExtra("Title",cardData.get(i).getTitle());
-                        in.putExtra("Number",cardData.get(i).getConatactNumber());
-                        in.putExtra("mOne",cardData.get(i).getMessageOne());
-                        in.putExtra("mTwo",cardData.get(i).getMessageTwo());
-                        in.putExtra("mThree",cardData.get(i).getMessageThree());
-                        in.putExtra("mFour",cardData.get(i).getMessageFour());
+                        in.putExtra("Name",cardData.get(i).getName());
+                        in.putExtra("Number",cardData.get(i).getContactNumber());
+                        in.putExtra("Bdate",cardData.get(i).getBirthdate());
+                        in.putExtra("Message",cardData.get(i).getMessage());
                         in.putExtra("time",cardData.get(i).getSendTime());
                         in.putExtra("repeat",cardData.get(i).getRepeat());
                         in.putExtra("media",cardData.get(i).getMedia());
@@ -157,37 +161,6 @@ public class MessageDisplayAdapter extends RecyclerView.Adapter<MessageDisplayAd
 
         });
 
-
-        if(cardData.get(i).getPause() == 0 ){
-            Log.e("Pause","Not paused.");
-            messageViewHolder.notification.setImageResource(R.drawable.ic_notifications_active_black_24dp);
-            messageViewHolder.paused = false;
-
-        }else{
-            messageViewHolder.notification.setImageResource(R.drawable.ic_notifications_off_black_24dp);
-            messageViewHolder.paused = true;
-        }
-
-        messageViewHolder.notification.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(messageViewHolder.paused ){
-
-
-                    messageViewHolder.notification.setImageResource(R.drawable.ic_notifications_active_black_24dp);
-                    updateThePause(cardData.get(i).getId(),0);
-                    messageViewHolder.paused = false;
-
-                }else{
-                    Log.e("Pause","Not paused.");
-                    messageViewHolder.notification.setImageResource(R.drawable.ic_notifications_off_black_24dp);
-                    updateThePause(cardData.get(i).getId(),1);
-                    messageViewHolder.paused = true;
-                }
-            }
-        });
-
-
     }
 
     private void deleteAMessage(int id){
@@ -199,7 +172,7 @@ public class MessageDisplayAdapter extends RecyclerView.Adapter<MessageDisplayAd
 
         Log.e("Delete Entry","Deletion started. id : "+idString);
 
-        int res = mydb.delete("MESSAGE_DATA", "MESSAGE_ID = ? ", new String[]{idString});
+        int res = mydb.delete("BIRTHDAY_DATA", "BIRTHDAY_ID = ? ", new String[]{idString});
 
         if(res > 0){
             Log.e("Delete Entry","Deleted successfully.");
@@ -211,37 +184,9 @@ public class MessageDisplayAdapter extends RecyclerView.Adapter<MessageDisplayAd
 
     }
 
-    private void updateThePause(int id, int val){
-        DatabaseHandler handler = new DatabaseHandler(myContext);
-        SQLiteDatabase mydb = handler.getWritableDatabase();
-
-        String idRes= Integer.toString(id);
-
-        ContentValues contentValues = new ContentValues();
-
-        contentValues.put("PAUSE", val);
-
-        Log.e("Update pause","Updated the entry : "+val);
-
-        int res = mydb.update("MESSAGE_DATA", contentValues, "MESSAGE_ID = ?", new String[]{idRes});
-        mydb.close();
-
-        if(res > 0){
-            Log.e("pause update","Successful.");
-
-            Intent intent = new Intent(myContext, Services.class);
-            myContext.startService(intent);
-
-            Log.e("Service refreshed","Successful.");
-
-        }else{
-            Log.e("pause update","Error.");
-        }
-
-    }
-
     @Override
     public int getItemCount() {
         return cardData.size();
     }
+
 }

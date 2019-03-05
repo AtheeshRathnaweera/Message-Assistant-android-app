@@ -42,7 +42,7 @@ public class Services extends Service {
 
             final long ONE_MINUTE_IN_MILLIS = 60000;
 
-            String query = "SELECT MESSAGE_ID,SEND_TIME,REPEAT,ONCE_SEND,PAUSE FROM MESSAGE_DATA";
+            String query = "SELECT MESSAGE_ID,SEND_TIME,REPEAT,ONCE_SEND,PAUSE FROM MESSAGE_DATA";//Retrieve data from message table
             @SuppressLint("Recycle") Cursor res = mydb.rawQuery(query,null);
 
             int id;

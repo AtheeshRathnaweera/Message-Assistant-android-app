@@ -1,12 +1,21 @@
 package com.atheeshproperty.messageassistantfinal;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -26,6 +35,14 @@ public class fragment_birthdays extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    private RecyclerView recyclerView;
+
+    private SQLiteDatabase mydb;
+
+    private Context context;
+
+    Handler mainHandler = new Handler();
 
     private OnFragmentInteractionListener mListener;
 
@@ -58,13 +75,41 @@ public class fragment_birthdays extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+        DatabaseHandler DatabaseHelper = new DatabaseHandler(getContext());
+        mydb = DatabaseHelper.getReadableDatabase();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_fragment_birthdays, container, false);
+        View view = inflater.inflate(R.layout.fragment_fragment_birthdays, container, false);
+
+        context = view.getContext();
+        recyclerView = view.findViewById(R.id.HomeBirthdayRecyclerView);
+
+        LinearLayoutManager layout = new LinearLayoutManager(this.getActivity());
+        recyclerView.setLayoutManager(layout);
+
+        if(recyclerView == null){
+            Log.e("OnCreateView","Recycler view null");
+        }else{
+            Log.e("OnCreateView","Recycler view found.");
+            fragment_birthdays.populateRecyclerView runnable = new fragment_birthdays.populateRecyclerView();
+            new Thread(runnable).start();
+
+        }
+
+        if(context == null){
+            Log.e("OnCreateView","context null");
+
+        }else{
+            Log.e("OnCreateView","context not null"+context.toString());
+        }
+
+
+
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -104,5 +149,58 @@ public class fragment_birthdays extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    private class populateRecyclerView implements Runnable{
+
+        populateRecyclerView(){
+
+
+        }
+
+        @Override
+        public void run() {
+
+            Log.e("background status", "Populate home recycler background started.");
+            List<BirthdayMessageObject> birthdayItems = new ArrayList<>();
+
+            String allData = " SELECT * FROM BIRTHDAY_DATA ";
+            Cursor c = mydb.rawQuery(allData, null);
+
+            if (c.moveToFirst()) {
+                do {
+                    BirthdayMessageObject birthday = new BirthdayMessageObject();
+                    birthday.setId(Integer.parseInt(c.getString(c.getColumnIndex("BIRTHDAY_ID"))));
+                    birthday.setName(c.getString(c.getColumnIndex("BIRTHDAY_TITLE")));
+                    birthday.setBirthdate(c.getString(c.getColumnIndex("BIRTHDAY_DATE")));
+                    birthday.setContactNumber(c.getString(c.getColumnIndex("BIRTHDAY_CONTACT_NUMBER")));
+                   birthday.setMessage(c.getString(c.getColumnIndex("BIRTHDAY_CONTENT")));
+                    birthday.setSendTime(c.getString(c.getColumnIndex("BIRTHDAY_SEND_TIME")));
+                    birthday.setMedia(c.getString(c.getColumnIndex("BIRTHDAY_MEDIA")));
+                    birthday.setRepeat(c.getString(c.getColumnIndex("BIRTHDAY_REPEAT")));
+                    birthday.setPause(Integer.parseInt(c.getString(c.getColumnIndex("BIRTHDAY_PAUSE"))));
+
+                    birthdayItems.add(birthday);
+                } while (c.moveToNext());
+
+            }
+
+            c.close();
+
+            Log.e("received", "received number of data : " + birthdayItems.size());
+
+
+            final BirthdayMessageDisplayAdapter myAdpater = new BirthdayMessageDisplayAdapter(context, birthdayItems);
+
+            mainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Log.e("Handler","Handler started ");
+                    recyclerView.setAdapter(myAdpater);
+                    myAdpater.notifyDataSetChanged();
+                }
+            });
+
+        }
     }
 }

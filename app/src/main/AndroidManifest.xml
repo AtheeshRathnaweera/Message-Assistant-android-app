@@ -42,6 +42,11 @@
             android:label="Update message details"
             android:noHistory="false"/>
 
+        <activity
+            android:name=".UpdateABirthday"
+            android:label="Update Birthday details"
+            android:noHistory="false"/>
+
         <service
             android:name=".Services"
             android:exported="false"

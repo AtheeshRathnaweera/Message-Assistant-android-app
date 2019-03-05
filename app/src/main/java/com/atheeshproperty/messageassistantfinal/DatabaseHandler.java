@@ -38,6 +38,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String BIRTHDAY_MEDIA = "BIRTHDAY_MEDIA";
     public static final String BIRTHDAY_REPEAT = "BIRTHDAY_REPEAT";
     public static final String BIRTHDAY_PAUSE = "BIRTHDAY_PAUSE";
+    public static final String BIRTHDAY_ONCE_SEND = "BIRTHDAY_ONCE_SEND";
 
     //History table
     public static final String HISTORY_TABLE_NAME = "HISTORY_TABLE";
@@ -80,6 +81,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 + BIRTHDAY_SEND_TIME + " TEXT,"
                 + BIRTHDAY_REPEAT + " TEXT,"
                 + BIRTHDAY_MEDIA + " TEXT,"
+                + BIRTHDAY_ONCE_SEND + " TEXT,"
                 + BIRTHDAY_PAUSE + " INTEGER)";
 
         db.execSQL(CREATE_BIRTHDAY_TABLE);
