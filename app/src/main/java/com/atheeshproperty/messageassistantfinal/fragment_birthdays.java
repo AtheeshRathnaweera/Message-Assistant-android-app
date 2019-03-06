@@ -177,7 +177,6 @@ public class fragment_birthdays extends Fragment {
                    birthday.setMessage(c.getString(c.getColumnIndex("BIRTHDAY_CONTENT")));
                     birthday.setSendTime(c.getString(c.getColumnIndex("BIRTHDAY_SEND_TIME")));
                     birthday.setMedia(c.getString(c.getColumnIndex("BIRTHDAY_MEDIA")));
-                    birthday.setRepeat(c.getString(c.getColumnIndex("BIRTHDAY_REPEAT")));
                     birthday.setPause(Integer.parseInt(c.getString(c.getColumnIndex("BIRTHDAY_PAUSE"))));
 
                     birthdayItems.add(birthday);

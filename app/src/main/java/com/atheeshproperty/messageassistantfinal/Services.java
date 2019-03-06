@@ -186,10 +186,87 @@ public class Services extends Service {
 
 
             res.close();
-            mydb.close();
+
+
+            String brithdayDataQuery = "SELECT BIRTHDAY_ID,BIRTHDAY_DATE,BIRTHDAY_SEND_TIME,BIRTHDAY_PAUSE FROM BIRTHDAY_DATA";
+            Cursor resBirthday = mydb.rawQuery(brithdayDataQuery,null);
+            hugry(resBirthday);
+
 
 
         }
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    public void hugry(Cursor received){
+        SimpleDateFormat fullTimeFormatter = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
+        SimpleDateFormat defaultTimeFormatter = new SimpleDateFormat("HH:mm:ss");
+        SimpleDateFormat defaulrDateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+
+        AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+        int requestCode = 0;
+        int birthdayId, paused;
+        String birthdayDate, birthdayTime;
+
+        if (received.moveToFirst()) {
+            do{
+                birthdayId = received.getInt(received.getColumnIndex("BIRTHDAY_ID"));
+                birthdayDate = received.getString(received.getColumnIndex("BIRTHDAY_DATE"));
+                birthdayTime = received.getString(received.getColumnIndex("BIRTHDAY_SEND_TIME"));
+                paused = received.getInt(received.getColumnIndex("BIRTHDAY_PAUSE"));
+
+                Calendar currentTime = Calendar.getInstance();//Getting current system time
+
+                //Compare with current time
+                String now = fullTimeFormatter.format(currentTime.getTime());
+
+                String completeTime = birthdayDate +"-"+birthdayTime;//Adding date and time strings to create full length date string
+
+                Date savedCompleteTime = null;
+
+                try {
+                    savedCompleteTime = fullTimeFormatter.parse(completeTime);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+                Intent intent = new Intent(Services.this, BirthdayAlertReceiver.class);
+                intent.putExtra("birthdayID",birthdayId);
+
+                if(paused == 0){
+
+                    if(now.compareTo(completeTime) < 0){
+                        Log.e("Birthday notification","Not passed.");
+
+                        PendingIntent pendingIntentOnce = PendingIntent.getBroadcast(Services.this,1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                        alarm.setExact(AlarmManager.RTC_WAKEUP,savedCompleteTime.getTime(), pendingIntentOnce);
+                        Log.e("Not passed birthdays","Birthday id: "+birthdayId);
+
+                    }else{
+                        Log.e("Birthday notification","Birthday passed.");
+                        Calendar c = Calendar.getInstance();
+                        c.setTime(savedCompleteTime);
+                        c.add(Calendar.YEAR,1);
+
+                        Date newDate = c.getTime();
+
+                        PendingIntent pendingIntentOnce = PendingIntent.getBroadcast(Services.this,1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                        alarm.setExact(AlarmManager.RTC_WAKEUP,newDate.getTime(), pendingIntentOnce);
+                        Log.e("Passed birthdays","Birthday id: "+birthdayId+" new date: "+newDate.toString());
+
+                    }
+
+                }else{
+                    Log.e("Birthday notification","Birthday paused. Nothing will happen.");
+
+                }
+
+            }while (received.moveToNext());
+        }
+
+
 
     }
 

@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.SEND_SMS"/>
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:allowBackup="true"
@@ -53,6 +54,8 @@
             android:stopWithTask="false" />
 
         <receiver android:name=".AlertReceiver" />
+
+        <receiver android:name=".BirthdayAlertReceiver"/>
 
         <receiver android:name=".smsSentReceiver"/>
 

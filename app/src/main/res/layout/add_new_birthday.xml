@@ -170,49 +170,6 @@
                 android:src="@drawable/ic_access_time_black_24dp" />
         </TableRow>
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingBottom="5dp"
-            android:paddingTop="5dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Repeat :"
-                android:textSize="17sp"
-                android:textColor="@color/white"/>
-
-            <RadioGroup
-                android:id="@+id/timeRadioGroup"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end|center_vertical"
-                android:orientation="horizontal">
-
-                <RadioButton
-                    android:id="@+id/beforem"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checked="true"
-                    android:text="Once"
-                    android:textSize="16sp"
-                    android:textColor="@color/grey"/>
-
-                <RadioButton
-                    android:id="@+id/afterm"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Every Year"
-                    android:textSize="16sp"
-                    android:layout_marginStart="5dp"
-                    android:textColor="@color/grey"
-                    android:layout_marginLeft="5dp" />
-
-            </RadioGroup>
-        </TableRow>
 
         <TableRow
             android:layout_width="match_parent"

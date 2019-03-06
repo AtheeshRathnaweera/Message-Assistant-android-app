@@ -47,9 +47,6 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
     private EditText person_name, content;
     private ImageButton date_picker, contact_list_open, message_time_picker;
 
-    private RadioGroup timeGroup;
-    private RadioButton selectedRadioButton;
-
     private CheckBox whatsapp, TextMessage;
 
     private Button cancel_button, save_button;
@@ -70,9 +67,6 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
         content = findViewById(R.id.message);
         time_text = findViewById(R.id.message_time);
         message_time_picker = findViewById(R.id.birthday_time_picker);
-
-        timeGroup = findViewById(R.id.timeRadioGroup);
-        selectedRadioButton = findViewById(R.id.onceButton);
 
         whatsapp = findViewById(R.id.message_type_whatsapp);
         TextMessage = findViewById(R.id.message_type_text);
@@ -391,10 +385,6 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
                 String contactNum = contact_number.getText().toString();
                 String message= content.getText().toString();
 
-                int selectedId = timeGroup.getCheckedRadioButtonId();//Get selected repeat button id
-                selectedRadioButton = findViewById(selectedId);
-                String repeatText = (String) selectedRadioButton.getText();//get selected repeat time button text
-
                 int media = 0;
 
                 //Maintain an integer value for save media type
@@ -414,8 +404,7 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
 
                 if (validatingTheForm(title, contactNum, message)) {
 
-                    AddNewBirthday.saveDataToDatabase saveRunnable = new AddNewBirthday.saveDataToDatabase(title, contactNum, message,
-                            repeatText, mediaString);
+                    AddNewBirthday.saveDataToDatabase saveRunnable = new AddNewBirthday.saveDataToDatabase(title, contactNum, message, mediaString);
                     new Thread(saveRunnable).start();
 
                     refreshActivity();
@@ -463,16 +452,13 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
         String name;
         String contactNum;
         String message;
-        String repeatText;
         String media;
 
-        saveDataToDatabase(String name, String contactNum, String message,
-                           String repeatText, String media) {
+        saveDataToDatabase(String name, String contactNum, String message, String media) {
 
             this.name = name;
             this.contactNum = contactNum;
             this.message = message;
-            this.repeatText = repeatText;
             this.media = media;
 
         }
@@ -487,9 +473,7 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
             contentValues.put("BIRTHDAY_CONTACT_NUMBER", contactNum);
             contentValues.put("BIRTHDAY_CONTENT", message);
             contentValues.put("BIRTHDAY_SEND_TIME", setTime);
-            contentValues.put("BIRTHDAY_REPEAT", repeatText);
             contentValues.put("BIRTHDAY_MEDIA", media);
-            contentValues.put("BIRTHDAY_ONCE_SEND", 0);
             contentValues.put("BIRTHDAY_PAUSE",0);
 
             long res = mydb.insert("BIRTHDAY_DATA", null, contentValues);

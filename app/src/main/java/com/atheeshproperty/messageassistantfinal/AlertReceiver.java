@@ -44,7 +44,6 @@ public class AlertReceiver extends BroadcastReceiver {
         Log.d("String Key", "intent received.");
         int id = 0;
 
-
         try {
             Log.e("received data", "data: " + intent.getIntExtra("id",1));
             id = intent.getIntExtra("id",1);
@@ -191,7 +190,6 @@ public class AlertReceiver extends BroadcastReceiver {
             intent.putExtra("Sent","SENT");
             intent.putExtra("Title",title);
             PendingIntent sentPI = PendingIntent.getBroadcast(context,1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
 
             SmsManager sms = SmsManager.getDefault();
             sms.sendTextMessage(number, null, res_message, sentPI, null);

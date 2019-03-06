@@ -8,7 +8,6 @@ public class BirthdayMessageObject {
     private String contactNumber;
     private String message;
     private String sendTime;
-    private String repeat;
     private String media;
     private int pause;
 
@@ -18,7 +17,7 @@ public class BirthdayMessageObject {
     }
 
     BirthdayMessageObject(int id,  String name, String Birthdate, String contactNumber, String message,
-                  String sendTime, String repeat, String media, int pause){
+                  String sendTime, String media, int pause){
 
         this.id = id;
         this.name = name;
@@ -26,7 +25,6 @@ public class BirthdayMessageObject {
         this.contactNumber = contactNumber;
         this.message = message;
         this.sendTime = sendTime;
-        this.repeat = repeat;
         this.media = media;
         this.pause = pause;
 
@@ -80,14 +78,6 @@ public class BirthdayMessageObject {
 
     public void setSendTime(String sendTime) {
         this.sendTime = sendTime;
-    }
-
-    public String getRepeat() {
-        return repeat;
-    }
-
-    public void setRepeat(String repeat) {
-        this.repeat = repeat;
     }
 
     public String getMedia() {

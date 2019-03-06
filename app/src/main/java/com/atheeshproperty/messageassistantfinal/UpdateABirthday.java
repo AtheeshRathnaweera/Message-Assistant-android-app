@@ -46,9 +46,6 @@ public class UpdateABirthday extends AppCompatActivity implements TimePickerDial
     private EditText person_name, content;
     private ImageButton date_picker, contact_list_open, message_time_picker;
 
-    private RadioGroup timeGroup;
-    private RadioButton selectedRadioButton;
-
     private CheckBox whatsapp, TextMessage;
 
     private Button cancel_button, save_button;
@@ -56,7 +53,7 @@ public class UpdateABirthday extends AppCompatActivity implements TimePickerDial
     private DatabaseHandler databseHelper;
     private SQLiteDatabase mydb;
 
-    String id, repeat, media;
+    String id, media;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -72,9 +69,6 @@ public class UpdateABirthday extends AppCompatActivity implements TimePickerDial
         content = findViewById(R.id.message);
         time_text = findViewById(R.id.message_time);
         message_time_picker = findViewById(R.id.birthday_time_picker);
-
-        timeGroup = findViewById(R.id.timeRadioGroup);
-        selectedRadioButton = findViewById(R.id.onceButton);
 
         whatsapp = findViewById(R.id.message_type_whatsapp);
         TextMessage = findViewById(R.id.message_type_text);
@@ -97,7 +91,6 @@ public class UpdateABirthday extends AppCompatActivity implements TimePickerDial
         birth_date.setText(intent.getExtras().getString("Bdate"));
 
         setTime = intent.getExtras().getString("time");
-        repeat = intent.getExtras().getString("repeat");
         media = intent.getExtras().getString("media");
         setDate = intent.getExtras().getString("Bdate");
 
@@ -125,12 +118,6 @@ public class UpdateABirthday extends AppCompatActivity implements TimePickerDial
                 onBackPressed();
             }
         });
-
-        if (repeat.equals("Once")) {
-            timeGroup.check(R.id.onceButton);
-        } else {
-            timeGroup.check(R.id.everyDayButton);
-        }
 
 
         switch (media) {
@@ -434,10 +421,6 @@ public class UpdateABirthday extends AppCompatActivity implements TimePickerDial
                 String contactNum = contact_number.getText().toString();
                 String message= content.getText().toString();
 
-                int selectedId = timeGroup.getCheckedRadioButtonId();//Get selected repeat button id
-                selectedRadioButton = findViewById(selectedId);
-                String repeatText = (String) selectedRadioButton.getText();//get selected repeat time button text
-
                 int media = 0;
 
                 //Maintain an integer value for save media type
@@ -457,16 +440,15 @@ public class UpdateABirthday extends AppCompatActivity implements TimePickerDial
 
                 if (validatingTheForm(title, contactNum, message)) {
 
-                    UpdateABirthday.updateDataToDatabase saveRunnable = new UpdateABirthday.updateDataToDatabase(title, contactNum, message,
-                            repeatText, mediaString);
+                    UpdateABirthday.updateDataToDatabase saveRunnable = new UpdateABirthday.updateDataToDatabase(id,title, contactNum, message, mediaString);
                     new Thread(saveRunnable).start();
 
                     refreshActivity();
 
-                    //Intent intent = new Intent(AddNewBirthday.this, Services.class);
-                    // startService(intent);
+                    Intent intent = new Intent(UpdateABirthday.this, Services.class);
+                    startService(intent);
 
-                    // Log.e("Service", "Service started.");
+                    Log.e("Service", "Service started.");
 
                 } else {
                     Toast.makeText(UpdateABirthday.this, "Please fill the fields properly!.", Toast.LENGTH_LONG).show();
@@ -482,17 +464,16 @@ public class UpdateABirthday extends AppCompatActivity implements TimePickerDial
         String name;
         String contactNum;
         String message;
-        String repeatText;
         String media;
+        String idRes;
 
-        updateDataToDatabase(String name, String contactNum, String message,
-                           String repeatText, String media) {
+        updateDataToDatabase(String id,String name, String contactNum, String message, String media) {
 
             this.name = name;
             this.contactNum = contactNum;
             this.message = message;
-            this.repeatText = repeatText;
             this.media = media;
+            this.idRes = id;
 
         }
 
@@ -506,12 +487,12 @@ public class UpdateABirthday extends AppCompatActivity implements TimePickerDial
             contentValues.put("BIRTHDAY_CONTACT_NUMBER", contactNum);
             contentValues.put("BIRTHDAY_CONTENT", message);
             contentValues.put("BIRTHDAY_SEND_TIME", setTime);
-            contentValues.put("BIRTHDAY_REPEAT", repeatText);
             contentValues.put("BIRTHDAY_MEDIA", media);
-            contentValues.put("BIRTHDAY_ONCE_SEND", 0);
             contentValues.put("BIRTHDAY_PAUSE",0);
 
-            long res = mydb.insert("BIRTHDAY_DATA", null, contentValues);
+            int res = mydb.update("BIRTHDAY_DATA", contentValues, "BIRTHDAY_ID = ?", new String[]{idRes});
+
+            mydb.close();
 
             if (res == -1) {
                 Log.e("Data saving", "not saved error.");

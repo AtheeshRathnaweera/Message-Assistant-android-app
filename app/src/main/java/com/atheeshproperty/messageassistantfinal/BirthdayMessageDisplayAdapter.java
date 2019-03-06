@@ -1,6 +1,7 @@
 package com.atheeshproperty.messageassistantfinal;
 
 import android.app.Dialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
@@ -68,7 +69,7 @@ public class BirthdayMessageDisplayAdapter extends RecyclerView.Adapter<Birthday
     }
 
     @Override
-    public void onBindViewHolder(@NonNull BirthdayMessageViewHolder birthdayMessageViewHolder,final int i) {
+    public void onBindViewHolder(@NonNull final BirthdayMessageViewHolder birthdayMessageViewHolder, final int i) {
         Log.e("BirthdayMessageDisplay","Bind method started.");
 
         SimpleDateFormat fullTimeFormatter = new SimpleDateFormat("HH:mm:ss");
@@ -105,6 +106,25 @@ public class BirthdayMessageDisplayAdapter extends RecyclerView.Adapter<Birthday
             birthdayMessageViewHolder.paused = true;
         }
 
+        birthdayMessageViewHolder.notification.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(birthdayMessageViewHolder.paused ){
+
+
+                    birthdayMessageViewHolder.notification.setImageResource(R.drawable.ic_notifications_active_black_24dp);
+                    updateThePause(cardData.get(i).getId(),0);
+                    birthdayMessageViewHolder.paused = false;
+
+                }else{
+                    Log.e("Pause","Not paused.");
+                    birthdayMessageViewHolder.notification.setImageResource(R.drawable.ic_notifications_off_black_24dp);
+                    updateThePause(cardData.get(i).getId(),1);
+                    birthdayMessageViewHolder.paused = true;
+                }
+            }
+        });
+
         birthdayMessageViewHolder.itemCard.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -130,7 +150,6 @@ public class BirthdayMessageDisplayAdapter extends RecyclerView.Adapter<Birthday
                         in.putExtra("Bdate",cardData.get(i).getBirthdate());
                         in.putExtra("Message",cardData.get(i).getMessage());
                         in.putExtra("time",cardData.get(i).getSendTime());
-                        in.putExtra("repeat",cardData.get(i).getRepeat());
                         in.putExtra("media",cardData.get(i).getMedia());
 
                         myContext.startActivity(in);
@@ -163,6 +182,34 @@ public class BirthdayMessageDisplayAdapter extends RecyclerView.Adapter<Birthday
 
     }
 
+    private void updateThePause(int id, int val){
+        DatabaseHandler handler = new DatabaseHandler(myContext);
+        SQLiteDatabase mydb = handler.getWritableDatabase();
+
+        String idRes= Integer.toString(id);
+
+        ContentValues contentValues = new ContentValues();
+
+        contentValues.put("BIRTHDAY_PAUSE", val);
+
+        Log.e("Update pause","Updated the entry : "+val);
+
+        int res = mydb.update("BIRTHDAY_DATA", contentValues, "BIRTHDAY_ID = ?", new String[]{idRes});
+        mydb.close();
+
+        if(res > 0){
+            Log.e("pause update","Successful.");
+
+            Intent intent = new Intent(myContext, Services.class);
+            myContext.startService(intent);
+
+            Log.e("Service refreshed","Successful.");
+
+        }else{
+            Log.e("pause update","Error.");
+        }
+
+    }
     private void deleteAMessage(int id){
 
         DatabaseHandler handler = new DatabaseHandler(myContext);
