@@ -95,6 +95,8 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
         whatsapp = findViewById(R.id.message_type_whatsapp);
         TextMessage = findViewById(R.id.message_type_text);
 
+        whatsapp.setVisibility(View.INVISIBLE);//Hide the wtsapp check box
+
         time_picker.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -279,30 +281,6 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
         }else{
             //activity result error action
         }
-    }
-
-    public void checkWhetherInProtectedAppsOfHuawei(){
-
-
-        final SharedPreferences settings = getSharedPreferences("ProtectedApps", MODE_PRIVATE);
-        final String saveIfSkip = "skipProtectedAppsMessage";
-        boolean skipMessage = settings.getBoolean(saveIfSkip, false);
-
-        if("huawei".equalsIgnoreCase(android.os.Build.MANUFACTURER) && !skipMessage) {
-            AlertDialog.Builder builder  = new AlertDialog.Builder(this);
-            builder.setTitle("Warning").setMessage("This app is in protected app list. Please remove this app from protected app list for work properly!")
-                    .setPositiveButton("Go to protected apps", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            Intent intent = new Intent();
-                            intent.setComponent(new ComponentName("com.huawei.systemmanager", "com.huawei.systemmanager.optimize.process.ProtectActivity"));
-                            startActivity(intent);
-                            settings.edit().putBoolean("protected",true).apply();
-                        }
-                    }).create().show();
-        }
-
-
     }
 
     private void saveData() {

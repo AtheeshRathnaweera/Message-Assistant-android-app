@@ -89,6 +89,8 @@ public class UpdateAMesage extends AppCompatActivity  implements TimePickerDialo
         whatsapp = findViewById(R.id.message_type_whatsapp);
         TextMessage = findViewById(R.id.message_type_text);
 
+        whatsapp.setVisibility(View.INVISIBLE);//Hide the wtsapp check box
+
         Intent intent = getIntent();
 
         Log.e("Update", "Started");

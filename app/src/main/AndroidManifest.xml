@@ -31,7 +31,7 @@
         <activity
             android:name=".AddNewMessage"
             android:label="Add new message"
-            android:noHistory="false"/>
+            android:noHistory="true"/>
 
         <activity
             android:name=".AddNewBirthday"

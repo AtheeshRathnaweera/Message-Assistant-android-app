@@ -201,12 +201,9 @@ public class Services extends Service {
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public void hugry(Cursor received){
         SimpleDateFormat fullTimeFormatter = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
-        SimpleDateFormat defaultTimeFormatter = new SimpleDateFormat("HH:mm:ss");
-        SimpleDateFormat defaulrDateFormatter = new SimpleDateFormat("yyyy-MM-dd");
 
         AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
-        int requestCode = 0;
         int birthdayId, paused;
         String birthdayDate, birthdayTime;
 

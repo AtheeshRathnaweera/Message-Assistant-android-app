@@ -98,7 +98,7 @@ public class AlertReceiver extends BroadcastReceiver {
 
             if (media == 1) {
                 //wtsapp
-                sendViaWhatsapp(phone_number,messageArray, context);
+                //sendViaWhatsapp(phone_number,messageArray, context);
             }
             if (media == 2) {
                 //Text message
@@ -108,7 +108,7 @@ public class AlertReceiver extends BroadcastReceiver {
 
             if (media == 3) {
                 //both
-                sendViaWhatsapp(phone_number, messageArray, context);
+                //sendViaWhatsapp(phone_number, messageArray, context);
                 sendAText(phone_number,messageArray, context);
                 Log.e("Text message","Sent");
 
@@ -120,7 +120,7 @@ public class AlertReceiver extends BroadcastReceiver {
         } else {
             if (media == 1) {
                 //wtsapp
-                sendViaWhatsapp(phone_number, messageArray, context);
+                //sendViaWhatsapp(phone_number, messageArray, context);
             }
             if (media == 2) {
                 //Text message

@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:padding="10dp"
     android:scrollbars="none"
-    android:background="@color/black">
+    android:background="@color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -25,7 +25,7 @@
                 android:layout_height="wrap_content"
                 android:text="Message Title : "
                 android:textSize="17sp"
-                android:textColor="@color/white"/>
+                android:textColor="@color/black"/>
 
             <EditText
                 android:id="@+id/message_title"
@@ -47,7 +47,7 @@
                 android:layout_height="wrap_content"
                 android:text="Contact Number :"
                 android:textSize="17sp"
-                android:textColor="@color/white"/>
+                android:textColor="@color/black"/>
 
             <TextView
                 android:id="@+id/message_contact"
@@ -82,7 +82,7 @@
                 android:layout_height="wrap_content"
                 android:text="Message 1 :"
                 android:textSize="17sp"
-                android:textColor="@color/white"/>
+                android:textColor="@color/black"/>
 
             <EditText
                 android:id="@+id/message_body_one"
@@ -104,7 +104,7 @@
                 android:layout_height="wrap_content"
                 android:text="Message 2 :"
                 android:textSize="17sp"
-                android:textColor="@color/white"/>
+                android:textColor="@color/black"/>
 
             <EditText
                 android:id="@+id/message_body_two"
@@ -126,7 +126,7 @@
                 android:layout_height="wrap_content"
                 android:text="Message 3 :"
                 android:textSize="17sp"
-                android:textColor="@color/white"/>
+                android:textColor="@color/black"/>
 
             <EditText
                 android:id="@+id/message_body_three"
@@ -148,7 +148,7 @@
                 android:layout_height="wrap_content"
                 android:text="Message 4 :"
                 android:textSize="17sp"
-                android:textColor="@color/white"/>
+                android:textColor="@color/black"/>
 
             <EditText
                 android:id="@+id/message_body_four"
@@ -174,7 +174,7 @@
                 android:gravity="center_vertical"
                 android:text="Send Time :"
                 android:textSize="17sp"
-                android:textColor="@color/white"/>
+                android:textColor="@color/black"/>
 
             <TextView
                 android:id="@+id/message_time"
@@ -211,7 +211,7 @@
                 android:layout_height="wrap_content"
                 android:text="Repeat :"
                 android:textSize="17sp"
-                android:textColor="@color/white"/>
+                android:textColor="@color/black"/>
 
             <RadioGroup
                 android:id="@+id/timeRadioGroup"
@@ -257,7 +257,7 @@
                 android:layout_gravity="start|center_vertical"
                 android:text="Media :"
                 android:textSize="17sp"
-                android:textColor="@color/white"/>
+                android:textColor="@color/black"/>
 
             <CheckBox
                 android:id="@+id/message_type_text"

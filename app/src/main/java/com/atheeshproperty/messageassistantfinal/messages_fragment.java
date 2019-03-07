@@ -184,6 +184,7 @@ public class messages_fragment extends Fragment {
                     message.setRepeat(c.getString(c.getColumnIndex("REPEAT")));
                     message.setMedia(c.getString(c.getColumnIndex("MEDIA")));
                     message.setPause(Integer.parseInt(c.getString(c.getColumnIndex("PAUSE"))));
+                    message.setOnceSend(Integer.parseInt(c.getString(c.getColumnIndex("ONCE_SEND"))));
 
                     messageItems.add(message);
                 } while (c.moveToNext());
@@ -191,6 +192,7 @@ public class messages_fragment extends Fragment {
             }
 
             c.close();
+            mydb.close();
 
             Log.e("received", "received number of data : " + messageItems.size());
 

@@ -2,10 +2,12 @@ package com.atheeshproperty.messageassistantfinal;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -75,52 +77,6 @@ public class BirthdayAlertReceiver extends BroadcastReceiver {
 
     }
 
-    private void sendViaWhatsapp(String number, ArrayList<String> messages, Context context) {
-
-        Log.e("Send via whatsapp","Method executed.");
-        int bound = messages.size();
-
-        Random rand = new Random();
-        int addMinutes = rand.nextInt(bound);
-
-        String res_message = messages.get(addMinutes);
-
-
-
-
-    }
-
-
-    private void permissionNeededNotification(Context context){
-        //Pop up a notification to request message permission
-
-        Intent in = new Intent(context, MainActivity.class);//Intent to open the app when notification click
-        PendingIntent contentIntent = PendingIntent.getActivity(context, 0, in, 0);
-
-        final long[] pattern = new long[]{2000, 2000, 3000};
-        lightUpTheScreen(context);
-
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
-                .setSmallIcon(R.drawable.ic_access_time_black_24dp)
-                .setContentTitle("Message Assistant !")
-                .setContentText("Please give SMS permission to send text messages.")
-                .setStyle(new NotificationCompat.BigTextStyle().bigText("Please give SMS permission to send text messages."))
-                .setVibrate(pattern)
-                .setPriority(Notification.PRIORITY_MAX)
-                .setAutoCancel(true)
-                .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
-                .setContentIntent(contentIntent)
-                .setCategory(NotificationCompat.CATEGORY_ALARM)
-                //.addAction(R.drawable.done, "Stop Notifying me", parseintent)
-                .setLights(Color.RED, 3000, 3000)
-                .setVisibility(1);
-
-        notificationManager.notify(1, builder.build());
-
-    }
-
     private void showBirthdayNotification(Context context, String number, String message, int entryID){
 
         int requestID = (int) System.currentTimeMillis();
@@ -129,13 +85,14 @@ public class BirthdayAlertReceiver extends BroadcastReceiver {
         smsIntent.setType("vnd.android-dir/mms-sms");
         smsIntent.putExtra("address", number);
         smsIntent.putExtra("sms_body",message);
-        PendingIntent parseintent = PendingIntent.getService(context, requestID, smsIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent parseintent = PendingIntent.getActivity(context, requestID, smsIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         //Send wtsapp message
         PackageManager packageManager = context.getPackageManager();
         Intent i = new Intent(Intent.ACTION_VIEW);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         PendingIntent wtsappIntent = null;
+
 
 
 
@@ -146,7 +103,7 @@ public class BirthdayAlertReceiver extends BroadcastReceiver {
             if(i.resolveActivity(packageManager) != null){
                 //context.startActivity(i);
 
-                wtsappIntent = PendingIntent.getService(context, requestID, i, PendingIntent.FLAG_CANCEL_CURRENT);
+                wtsappIntent = PendingIntent.getActivity(context, requestID, i, PendingIntent.FLAG_UPDATE_CURRENT);
             }
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -161,25 +118,66 @@ public class BirthdayAlertReceiver extends BroadcastReceiver {
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
-                .setSmallIcon(R.drawable.ic_access_time_black_24dp)
-                .setContentTitle("It's "+title+" s birthday today!")
-                .setContentText("Say Happy Birthday to "+title)
-                //.setStyle(new NotificationCompat.BigTextStyle().bigText("Please give SMS permission to send text messages."))
-                .setVibrate(pattern)
-                .setPriority(Notification.PRIORITY_MAX)
-                .setAutoCancel(true)
-                .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
-                .setContentIntent(contentIntent)
-                .setCategory(NotificationCompat.CATEGORY_ALARM)
-                .addAction(R.drawable.sms, "Send a text", parseintent)
-                .addAction(R.drawable.wtsapp,"Send a whatsapp message",wtsappIntent)
-                .setLights(Color.RED, 3000, 3000)
-                .setVisibility(1);
+        if(appInstalledOrNot("com.whatsapp",context)){
 
-        notificationManager.notify(entryID, builder.build());
+            Log.e("whatsapp installed","yes");
+
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+                    .setSmallIcon(R.drawable.ic_access_time_black_24dp)
+                    .setContentTitle("It's "+title+" s birthday today!")
+                    .setContentText("Say Happy Birthday to "+title+" !")
+                    //.setStyle(new NotificationCompat.BigTextStyle().bigText("Please give SMS permission to send text messages."))
+                    .setVibrate(pattern)
+                    .setPriority(Notification.PRIORITY_MAX)
+                    .setAutoCancel(true)
+                    .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
+                    .setContentIntent(contentIntent)
+                    .setCategory(NotificationCompat.CATEGORY_ALARM)
+                    .addAction(R.drawable.sms, "Text", parseintent)
+                    .addAction(R.drawable.wtsapp,"Whatspp Message",wtsappIntent)
+                    .setLights(Color.RED, 3000, 3000)
+                    .setVisibility(1);
+
+            notificationManager.notify(entryID, builder.build());
+
+        }else{
+            Log.e("whatsapp installed","no");
+
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+                    .setSmallIcon(R.drawable.ic_access_time_black_24dp)
+                    .setContentTitle("It's "+title+" s birthday today!")
+                    .setContentText("Say Happy Birthday to "+title+ " !")
+                    //.setStyle(new NotificationCompat.BigTextStyle().bigText("Please give SMS permission to send text messages."))
+                    .setVibrate(pattern)
+                    .setPriority(Notification.PRIORITY_MAX)
+                    .setAutoCancel(true)
+                    .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
+                    .setContentIntent(contentIntent)
+                    .setCategory(NotificationCompat.CATEGORY_ALARM)
+                    .addAction(R.drawable.sms, "Text", parseintent)
+                    .setLights(Color.RED, 3000, 3000)
+                    .setVisibility(1);
+
+            notificationManager.notify(entryID, builder.build());
+        }
 
 
+
+
+
+    }
+
+    private boolean appInstalledOrNot(String uri, Context context) {
+        PackageManager pm = context.getPackageManager();
+        boolean app_installed;
+        try {
+            pm.getPackageInfo(uri, PackageManager.GET_ACTIVITIES);
+            app_installed = true;
+        }
+        catch (PackageManager.NameNotFoundException e) {
+            app_installed = false;
+        }
+        return app_installed;
     }
 
     public void lightUpTheScreen(Context context) {

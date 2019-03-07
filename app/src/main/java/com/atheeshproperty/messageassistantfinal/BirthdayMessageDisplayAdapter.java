@@ -32,16 +32,13 @@ public class BirthdayMessageDisplayAdapter extends RecyclerView.Adapter<Birthday
 
     }
 
-
-
     public static class BirthdayMessageViewHolder extends RecyclerView.ViewHolder {
-
 
         public TextView messageTitle;
         public TextView contactNumber;
-        private TextView repeatType;
         public TextView sendTime;
         public CardView itemCard;
+        public TextView monthDisplay, dateDisplay;
         private ImageButton notification;
         boolean paused;
 
@@ -52,9 +49,11 @@ public class BirthdayMessageDisplayAdapter extends RecyclerView.Adapter<Birthday
             messageTitle = itemView.findViewById(R.id.diplayMessageName);
             contactNumber = itemView.findViewById(R.id.displayContactNumber);
             sendTime = itemView.findViewById(R.id.displaySendTime);
-            repeatType = itemView.findViewById(R.id.repeatType);
             itemCard = itemView.findViewById(R.id.messageitemcard);
             notification = itemView.findViewById(R.id.pauseButton);
+
+            monthDisplay = itemView.findViewById(R.id.displayBirthdayMonth);
+            dateDisplay = itemView.findViewById(R.id.displayBirthdayDate);
 
         }
     }
@@ -64,7 +63,7 @@ public class BirthdayMessageDisplayAdapter extends RecyclerView.Adapter<Birthday
     public BirthdayMessageViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup,int i) {
         Log.e("MessageDisplayAdapter","Adapter started.");
         LayoutInflater myinflater = LayoutInflater.from(myContext);
-        View view = myinflater.inflate(R.layout.message_item_display_layout, viewGroup,  false);
+        View view = myinflater.inflate(R.layout.birthday_item_display_layout, viewGroup,  false);
         return new BirthdayMessageDisplayAdapter.BirthdayMessageViewHolder(view);
     }
 
@@ -75,7 +74,9 @@ public class BirthdayMessageDisplayAdapter extends RecyclerView.Adapter<Birthday
         SimpleDateFormat fullTimeFormatter = new SimpleDateFormat("HH:mm:ss");
         SimpleDateFormat newFormat = new SimpleDateFormat("HH : mm : ss");
         SimpleDateFormat fullDateFormatter = new SimpleDateFormat("yyyy-MM-dd");
-        SimpleDateFormat newUpdateFormat = new SimpleDateFormat("MMMM dd");
+
+        SimpleDateFormat newUpdateFormat = new SimpleDateFormat("MMMM");
+        SimpleDateFormat newDateFormat = new SimpleDateFormat("dd");
 
         Date date = null;
         Date Bdate = null;
@@ -87,14 +88,18 @@ public class BirthdayMessageDisplayAdapter extends RecyclerView.Adapter<Birthday
         }
 
         String time = newFormat.format(date);
-        String birthdate = newUpdateFormat.format(Bdate);
+        String birthMonth = newUpdateFormat.format(Bdate);
+        String birthDate = newDateFormat.format(Bdate);
 
         Log.e("Date","this is the time : "+time);
 
         birthdayMessageViewHolder.messageTitle.setText(cardData.get(i).getName());
-        birthdayMessageViewHolder.contactNumber.setText(birthdate);
-        birthdayMessageViewHolder.sendTime.setVisibility(View.INVISIBLE);
-        birthdayMessageViewHolder.repeatType.setText(time);
+        birthdayMessageViewHolder.contactNumber.setText(cardData.get(i).getContactNumber());
+       // birthdayMessageViewHolder.sendTime.setVisibility(View.INVISIBLE);
+        birthdayMessageViewHolder.sendTime.setText(cardData.get(i).getSendTime());
+
+        birthdayMessageViewHolder.monthDisplay.setText(birthMonth);
+        birthdayMessageViewHolder.dateDisplay.setText(birthDate);
 
         if(cardData.get(i).getPause() == 0 ){
             Log.e("Pause","Not paused.");

@@ -48,6 +48,7 @@ public class MessageDisplayAdapter extends RecyclerView.Adapter<MessageDisplayAd
         public CardView itemCard;
         private ImageButton notification;
         boolean paused;
+        private TextView displayType, displayTime;
 
 
         public messageViewHolder(@NonNull View itemView) {
@@ -59,6 +60,9 @@ public class MessageDisplayAdapter extends RecyclerView.Adapter<MessageDisplayAd
             repeatType = itemView.findViewById(R.id.repeatType);
             itemCard = itemView.findViewById(R.id.messageitemcard);
             notification = itemView.findViewById(R.id.pauseButton);
+
+            displayTime = itemView.findViewById(R.id.displayBirthdayDate);
+            displayType = itemView.findViewById(R.id.displayBirthdayMonth);
 
         }
     }
@@ -80,9 +84,11 @@ public class MessageDisplayAdapter extends RecyclerView.Adapter<MessageDisplayAd
 
         Log.e("MessageDisplayAdapter","Bind method started.");
 
-        SimpleDateFormat fullTimeFormatter = new SimpleDateFormat("HH:mm:ss");
-        SimpleDateFormat newFormat = new SimpleDateFormat("HH : mm : ss");
 
+        SimpleDateFormat fullTimeFormatter = new SimpleDateFormat("HH:mm:ss");
+        SimpleDateFormat newFormat = new SimpleDateFormat("HH:mm");
+
+        String repeatText = cardData.get(i).getRepeat();
         Date date = null;
         try {
             date = fullTimeFormatter.parse(cardData.get(i).getSendTime());
@@ -96,8 +102,19 @@ public class MessageDisplayAdapter extends RecyclerView.Adapter<MessageDisplayAd
 
         messageViewHolder.messageTitle.setText(cardData.get(i).getTitle());
         messageViewHolder.contactNumber.setText(cardData.get(i).getConatactNumber());
-        messageViewHolder.sendTime.setText(time);
-        messageViewHolder.repeatType.setText(cardData.get(i).getRepeat());
+
+        messageViewHolder.repeatType.setVisibility(View.INVISIBLE);
+
+        messageViewHolder.displayType.setText(repeatText);
+        messageViewHolder.displayTime.setText(time);
+
+        //Show media type
+        String media = cardData.get(i).getMedia();
+        if(media.equals("2")){
+
+            messageViewHolder.sendTime.setText("Text message");
+        }
+
 
         messageViewHolder.itemCard.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -158,34 +175,51 @@ public class MessageDisplayAdapter extends RecyclerView.Adapter<MessageDisplayAd
         });
 
 
-        if(cardData.get(i).getPause() == 0 ){
-            Log.e("Pause","Not paused.");
-            messageViewHolder.notification.setImageResource(R.drawable.ic_notifications_active_black_24dp);
-            messageViewHolder.paused = false;
+
+        if(!repeatText.equals("Once")){
+            if(cardData.get(i).getPause() == 0 ){
+                Log.e("Pause","Not paused.");
+                messageViewHolder.notification.setImageResource(R.drawable.ic_notifications_active_black_24dp);
+                messageViewHolder.paused = false;
+
+            }else{
+                Log.e("Pause","Paused.");
+                messageViewHolder.notification.setImageResource(R.drawable.ic_notifications_off_black_24dp);
+                messageViewHolder.paused = true;
+            }
+
+            messageViewHolder.notification.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(messageViewHolder.paused ){
+
+
+                        messageViewHolder.notification.setImageResource(R.drawable.ic_notifications_active_black_24dp);
+                        updateThePause(cardData.get(i).getId(),0);
+                        messageViewHolder.paused = false;
+
+                    }else{
+                        Log.e("Pause","Not paused.");
+                        messageViewHolder.notification.setImageResource(R.drawable.ic_notifications_off_black_24dp);
+                        updateThePause(cardData.get(i).getId(),1);
+                        messageViewHolder.paused = true;
+                    }
+                }
+            });
 
         }else{
-            messageViewHolder.notification.setImageResource(R.drawable.ic_notifications_off_black_24dp);
-            messageViewHolder.paused = true;
+
+            if(cardData.get(i).getOnceSend() != 0){
+                Log.e("Once","This is a once entry.");
+                messageViewHolder.notification.setImageResource(R.drawable.ic_check_circle_black_active);
+            }else{
+                messageViewHolder.notification.setImageResource(R.drawable.ic_check_circle_black_24dp);
+            }
+
         }
 
-        messageViewHolder.notification.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(messageViewHolder.paused ){
 
 
-                    messageViewHolder.notification.setImageResource(R.drawable.ic_notifications_active_black_24dp);
-                    updateThePause(cardData.get(i).getId(),0);
-                    messageViewHolder.paused = false;
-
-                }else{
-                    Log.e("Pause","Not paused.");
-                    messageViewHolder.notification.setImageResource(R.drawable.ic_notifications_off_black_24dp);
-                    updateThePause(cardData.get(i).getId(),1);
-                    messageViewHolder.paused = true;
-                }
-            }
-        });
 
 
     }

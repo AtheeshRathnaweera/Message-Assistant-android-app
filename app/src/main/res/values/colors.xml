@@ -18,4 +18,6 @@
     <color name="black">#000</color>
     <color name="coldblack">#232b2b</color>
     <color name ="red">#FF0000</color>
+    <color name = "Orange">#f1940e</color>
+    <color name = "LightOrange">#eea944</color>
 </resources>

@@ -13,6 +13,7 @@ public class MessageObject {
     private String repeat;
     private String media;
     private int pause;
+    private int onceSend;
 
     public MessageObject(){
 
@@ -20,7 +21,7 @@ public class MessageObject {
     }
 
     MessageObject(int id,  String title, String conatctNumber, String messageOne, String messageTwo, String messageThree, String messageFour,
-            String sendTime, String repeat, String media, int pause){
+            String sendTime, String repeat, String media, int pause, int onceSend){
 
         this.id = id;
         this.title = title;
@@ -33,7 +34,16 @@ public class MessageObject {
         this.repeat = repeat;
         this.media = media;
         this.pause = pause;
+        this.onceSend = onceSend;
 
+    }
+
+    public int getOnceSend() {
+        return onceSend;
+    }
+
+    public void setOnceSend(int onceSend) {
+        this.onceSend = onceSend;
     }
 
     public int getId() {
