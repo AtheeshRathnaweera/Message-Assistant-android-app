@@ -71,6 +71,8 @@ public class MainActivity extends AppCompatActivity implements messages_fragment
 
         fab_actions();
 
+        AppRequirements.startPowerSaverIntent(this);
+
 
     }
 

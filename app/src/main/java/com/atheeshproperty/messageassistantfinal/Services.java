@@ -188,11 +188,13 @@ public class Services extends Service {
             res.close();
 
 
+
             String brithdayDataQuery = "SELECT BIRTHDAY_ID,BIRTHDAY_DATE,BIRTHDAY_SEND_TIME,BIRTHDAY_PAUSE FROM BIRTHDAY_DATA";
             Cursor resBirthday = mydb.rawQuery(brithdayDataQuery,null);
             hugry(resBirthday);
 
 
+            mydb.close();
 
         }
 
@@ -235,14 +237,15 @@ public class Services extends Service {
                 if(paused == 0){
 
                     if(now.compareTo(completeTime) < 0){
-                        Log.e("Birthday notification","Not passed.");
+                        Log.e("Birthday notification","Not paused and passed.");
 
                         PendingIntent pendingIntentOnce = PendingIntent.getBroadcast(Services.this,1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                         alarm.setExact(AlarmManager.RTC_WAKEUP,savedCompleteTime.getTime(), pendingIntentOnce);
-                        Log.e("Not passed birthdays","Birthday id: "+birthdayId);
+
+                        Log.e("Not passed birthdays","Birthday id: "+birthdayId+" time: "+savedCompleteTime.getTime());
 
                     }else{
-                        Log.e("Birthday notification","Birthday passed.");
+                        Log.e("Birthday notification","Birthday not paused but passed.");
                         Calendar c = Calendar.getInstance();
                         c.setTime(savedCompleteTime);
                         c.add(Calendar.YEAR,1);
@@ -262,6 +265,8 @@ public class Services extends Service {
 
             }while (received.moveToNext());
         }
+
+        received.close();
 
 
 

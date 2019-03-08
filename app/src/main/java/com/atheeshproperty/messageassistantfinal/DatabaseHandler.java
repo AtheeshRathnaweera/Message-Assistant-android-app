@@ -44,6 +44,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String HISTORY_MES_ID = "HISTORY_MES_ID";
     public static final String HISTORY_MES_TITLE = "HISTORY_MES_TITLE";
     public static final String HISTORY_MES_NUMBER = "HISTORY_MES_NUMBER";
+    public static final String HISTORY_MES_CONTENT = "HISTORY_MES_CONTENT";
+    public static final String HISTORY_MES_SENTTIME = "HISTORY_SENT_TIME";
 
     public DatabaseHandler(Context context) {
 

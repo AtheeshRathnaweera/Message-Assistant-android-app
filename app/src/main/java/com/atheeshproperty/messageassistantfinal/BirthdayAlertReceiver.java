@@ -33,6 +33,7 @@ public class BirthdayAlertReceiver extends BroadcastReceiver {
     SQLiteDatabase mydbForWrite;
 
     String title, phoneNumber,message;
+    int paused;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -62,9 +63,19 @@ public class BirthdayAlertReceiver extends BroadcastReceiver {
                 title = c.getString(c.getColumnIndex("BIRTHDAY_TITLE"));
                 phoneNumber = c.getString(c.getColumnIndex("BIRTHDAY_CONTACT_NUMBER"));
                 message = c.getString(c.getColumnIndex("BIRTHDAY_CONTENT"));
+                paused=c.getInt(c.getColumnIndex("BIRTHDAY_PAUSE"));
 
-                showBirthdayNotification(context,phoneNumber,message,entryID);
-                entryID = entryID+1;
+
+                if(paused == 0){
+                    Log.e("Birthday alert receiver","Not passed.");
+                    showBirthdayNotification(context,phoneNumber,message,entryID);
+                    entryID = entryID+1;
+
+                }else{
+                    Log.e("Birthday alert receiver","Passed.");
+                    entryID = entryID+1;
+                }
+
 
 
 
@@ -92,8 +103,6 @@ public class BirthdayAlertReceiver extends BroadcastReceiver {
         Intent i = new Intent(Intent.ACTION_VIEW);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         PendingIntent wtsappIntent = null;
-
-
 
 
         try {

@@ -35,7 +35,7 @@ public class AlertReceiver extends BroadcastReceiver {
 
     String body_one, body_two, body_three, body_four;
     String repeatType, title, phone_number;
-    int media;
+    int media,paused;
     DatabaseHandler databaseHandler;
     SQLiteDatabase mydbForWrite;
 
@@ -73,10 +73,13 @@ public class AlertReceiver extends BroadcastReceiver {
                 body_four = c.getString(c.getColumnIndex("CONTENT_FOUR"));
                 repeatType = c.getString(c.getColumnIndex("REPEAT"));
                 media = c.getInt(c.getColumnIndex("MEDIA"));
+                paused = c.getInt(c.getColumnIndex("PAUSE"));
 
             } while (c.moveToNext());
 
         }
+        c.close();
+        mydb.close();
 
         ArrayList<String> messageArray = new ArrayList<String>();
         if(!body_one.trim().isEmpty()){
@@ -118,17 +121,17 @@ public class AlertReceiver extends BroadcastReceiver {
 
 
         } else {
-            if (media == 1) {
+            if (media == 1 && paused ==0) {
                 //wtsapp
                 //sendViaWhatsapp(phone_number, messageArray, context);
             }
-            if (media == 2) {
+            if (media == 2 && paused == 0) {
                 //Text message
                 sendAText(phone_number, messageArray, context);
                 Log.e("Text message","Sent");
             }
 
-            if (media == 3) {
+            if (media == 3 && paused ==0) {
                 //both
                // sendViaWhatsapp(phone_number, messageArray, context);
                 sendAText(phone_number, messageArray, context);

@@ -6,31 +6,63 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.os.Build;
+import android.support.v7.widget.AppCompatCheckBox;
+import android.widget.CompoundButton;
+
+import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
 
 public class AppRequirements {
 
-    public void checkWhetherInProtectedAppsOfHuawei(final Context context){
-
-        final SharedPreferences settings = context.getSharedPreferences("ProtectedApps", MODE_PRIVATE);
-        final String saveIfSkip = "skipProtectedAppsMessage";
-        boolean skipMessage = settings.getBoolean(saveIfSkip, false);
-
-        if("huawei".equalsIgnoreCase(android.os.Build.MANUFACTURER) && !skipMessage) {
-            AlertDialog.Builder builder  = new AlertDialog.Builder(context);
-            builder.setTitle("Warning").setMessage("This app is in protected app list. Please remove this app from protected app list for work properly!")
-                    .setPositiveButton("Go to protected apps", new DialogInterface.OnClickListener() {
+    public static void startPowerSaverIntent(final Context context) {
+        SharedPreferences settings = context.getSharedPreferences("ProtectedApps", Context.MODE_PRIVATE);
+        boolean skipMessage = settings.getBoolean("skipProtectedAppCheck", false);
+        if (!skipMessage) {
+            final SharedPreferences.Editor editor = settings.edit();
+            boolean foundCorrectIntent = false;
+            for (final Intent intent : Constants.POWERMANAGER_INTENTS) {
+                if (isCallable(context, intent)) {
+                    foundCorrectIntent = true;
+                    final AppCompatCheckBox dontShowAgain = new AppCompatCheckBox(context);
+                    dontShowAgain.setText("Do not show again");
+                    dontShowAgain.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                         @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            Intent intent = new Intent();
-                            intent.setComponent(new ComponentName("com.huawei.systemmanager", "com.huawei.systemmanager.optimize.process.ProtectActivity"));
-                            context.startActivity(intent);
-                            settings.edit().putBoolean("protected",true).apply();
+                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                            editor.putBoolean("skipProtectedAppCheck", isChecked);
+                            editor.apply();
                         }
-                    }).create().show();
+                    });
+
+                    new AlertDialog.Builder(context)
+                            .setTitle(Build.MANUFACTURER + " Protected Apps")
+                            .setMessage(String.format("%s requires to be enabled in 'Protected Apps' to function properly.%n", context.getString(R.string.app_name)))
+                            .setView(dontShowAgain)
+                            .setPositiveButton("Go to settings", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    context.startActivity(intent);
+                                }
+                            })
+                            .setNegativeButton(android.R.string.cancel, null)
+                            .show();
+                    break;
+                }
+            }
+            if (!foundCorrectIntent) {
+                editor.putBoolean("skipProtectedAppCheck", true);
+                editor.apply();
+            }
         }
-
-
     }
+
+    private static boolean isCallable(Context context, Intent intent) {
+        List<ResolveInfo> list = context.getPackageManager().queryIntentActivities(intent,
+                PackageManager.MATCH_DEFAULT_ONLY);
+        return list.size() > 0;
+    }
+
+
 }
