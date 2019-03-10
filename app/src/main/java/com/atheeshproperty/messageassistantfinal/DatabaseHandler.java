@@ -23,6 +23,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String CONTENT_FOUR = "CONTENT_FOUR";
     public static final String SEND_TIME = "SEND_TIME";
     public static final String REPEAT = "REPEAT";
+    public static final String SEND_DATE = "SEND_DATE";
     public static final String MEDIA = "MEDIA";
     public static final String ONCE_SEND = "ONCE_SEND";
     public static final String PAUSE = "PAUSE";
@@ -46,6 +47,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String HISTORY_MES_NUMBER = "HISTORY_MES_NUMBER";
     public static final String HISTORY_MES_CONTENT = "HISTORY_MES_CONTENT";
     public static final String HISTORY_MES_SENTTIME = "HISTORY_SENT_TIME";
+    public static final String HISTORY_MES_STATUS = "HISTORY_STATUS";
 
     public DatabaseHandler(Context context) {
 
@@ -65,6 +67,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 + CONTENT_FOUR + " TEXT,"
                 + SEND_TIME + " TEXT,"
                 + REPEAT + " TEXT,"
+                + SEND_DATE + " TEXT,"
                 + MEDIA + " TEXT,"
                 + ONCE_SEND + " INTEGER,"
                 + PAUSE + " INTEGER)";
@@ -83,7 +86,19 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 + BIRTHDAY_PAUSE + " INTEGER)";
 
         db.execSQL(CREATE_BIRTHDAY_TABLE);
-        Log.d("Database Helper", "On create executed.Database created.");
+        Log.d("Database Helper", "On create executed.Birthday table created.");
+
+        String CREATE_HISTORY_TABLE = " CREATE TABLE " + HISTORY_TABLE_NAME + "(" +
+                HISTORY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + HISTORY_MES_ID + " TEXT,"
+                + HISTORY_MES_TITLE + " TEXT,"
+                + HISTORY_MES_NUMBER + " TEXT,"
+                + HISTORY_MES_CONTENT + " TEXT,"
+                + HISTORY_MES_SENTTIME + " TEXT,"
+                + HISTORY_MES_STATUS + " TEXT)";
+
+        db.execSQL(CREATE_HISTORY_TABLE);
+        Log.d("Database Helper", "On create executed.History table created.");
 
     }
 

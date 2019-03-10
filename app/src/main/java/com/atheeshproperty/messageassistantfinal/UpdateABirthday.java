@@ -332,7 +332,11 @@ public class UpdateABirthday extends AppCompatActivity implements TimePickerDial
 
     public boolean isPhoneNumberValid(String phoneNumber) {
         //NOTE: This should probably be a member variable.
-        Boolean res = PhoneNumberUtils.isGlobalPhoneNumber(phoneNumber);
+        String phNo = phoneNumber.replaceAll("[()\\-\\s]", "");
+        Log.e("Phone number", "This is the number: "+phoneNumber);
+        Log.e("Phone number", " This is the updated number : "+phNo);
+
+        Boolean res = PhoneNumberUtils.isGlobalPhoneNumber(phNo);
 
         if (res) {
             Log.e("Phone number", " OK.");

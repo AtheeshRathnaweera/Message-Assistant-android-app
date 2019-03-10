@@ -2,6 +2,7 @@ package com.atheeshproperty.messageassistantfinal;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.ComponentName;
 import android.content.ContentValues;
@@ -27,6 +28,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
@@ -40,20 +42,20 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-public class UpdateAMesage extends AppCompatActivity  implements TimePickerDialog.OnTimeSetListener{
+public class UpdateAMesage extends AppCompatActivity implements TimePickerDialog.OnTimeSetListener, DatePickerDialog.OnDateSetListener {
 
     private EditText title_text,
             message_one, message_two, message_three,
             message_four;
 
-    private TextView time_text ,contact_number;
-    private ImageButton time_picker, openContacts;
+    private TextView time_text, contact_number, dateLabel, dateText;
+    private ImageButton time_picker, openContacts, datePicker;
 
     private Button cancel_button, save_button;
 
-    private String setTime;
+    private String setTime, setDate;
 
-    private String id,repeat, media;
+    private String id, repeat, media;
 
     private RadioGroup timeGroup;
     private RadioButton selectedRadioButton;
@@ -72,8 +74,11 @@ public class UpdateAMesage extends AppCompatActivity  implements TimePickerDialo
         message_three = findViewById(R.id.message_body_three);
         message_four = findViewById(R.id.message_body_four);
 
-        time_text = findViewById(R.id.message_time);
+        dateLabel = findViewById(R.id.messageDateLabel);
+        dateText = findViewById(R.id.messageDateText);
+        datePicker = findViewById(R.id.message_date_picker);
 
+        time_text = findViewById(R.id.message_time);
         time_picker = findViewById(R.id.message_time_picker);
 
         cancel_button = findViewById(R.id.cancel);
@@ -106,21 +111,17 @@ public class UpdateAMesage extends AppCompatActivity  implements TimePickerDialo
         message_three.setText(intent.getExtras().getString("mThree"));
         message_four.setText(intent.getExtras().getString("mFour"));
         time_text.setText(intent.getExtras().getString("time"));
+        dateText.setText(intent.getExtras().getString("date"));
 
         setTime = intent.getExtras().getString("time");
+        setDate = intent.getExtras().getString("date");
 
         repeat = intent.getExtras().getString("repeat");
         media = intent.getExtras().getString("media");
 
-        Log.e("Checking"," Title text"+title_text.getText());
+        Log.e("Checking", " Title text" + title_text.getText());
 
-        time_picker.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DialogFragment timePicker = new TimePickerFragment();
-                timePicker.show(getSupportFragmentManager(), "time picker");
-            }
-        });
+
 
         cancel_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -135,6 +136,8 @@ public class UpdateAMesage extends AppCompatActivity  implements TimePickerDialo
             timeGroup.check(R.id.onceButton);
         } else {
             timeGroup.check(R.id.everyDayButton);
+            dateLabel.setText("Started from : ");
+            datePicker.setVisibility(View.INVISIBLE);
         }
 
         switch (media) {
@@ -170,10 +173,50 @@ public class UpdateAMesage extends AppCompatActivity  implements TimePickerDialo
             }
         });
 
-
+        dateAndTimePicker();
+        changeTheSetDateLableAccordingToTheButton();
         updatedata();
     }
 
+    public void dateAndTimePicker(){
+        time_picker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DialogFragment timePicker = new TimePickerFragment();
+                timePicker.show(getSupportFragmentManager(), "time picker");
+            }
+        });
+
+        datePicker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DialogFragment datePicker = new DataPickerFragment();
+                datePicker.show(getSupportFragmentManager(), "date picker");
+            }
+        });
+
+    }
+
+    public void changeTheSetDateLableAccordingToTheButton() {
+
+        timeGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                // checkedId is the RadioButton selected
+                Log.e("Selected radio", "id: " + checkedId);
+
+                if (checkedId == R.id.everyDayButton) {
+                    dateLabel.setText("Start from : ");
+                    datePicker.setVisibility(View.INVISIBLE);
+
+                } else {
+                    dateLabel.setText("Send date : ");
+                    datePicker.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+    }
 
     private void openTheContactsList() {
 
@@ -187,40 +230,40 @@ public class UpdateAMesage extends AppCompatActivity  implements TimePickerDialo
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(resultCode == RESULT_OK){
+        if (resultCode == RESULT_OK) {
             switch (requestCode) {
 
                 case 1:
                     Cursor cursor = null;
-                    String phoneNumber= null;
+                    String phoneNumber = null;
                     List<String> allnumbers = new ArrayList<String>();
                     int phoneIndex = 0;
 
-                    try{
+                    try {
 
                         assert data != null;
                         Uri result = data.getData();
                         assert result != null;
                         String id = result.getLastPathSegment();
                         cursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
-                                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=?", new String[] {id},null);
+                                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=?", new String[]{id}, null);
                         assert cursor != null;
                         phoneIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DATA);
 
-                        if(cursor.moveToFirst()){
-                            while (!cursor.isAfterLast()){
+                        if (cursor.moveToFirst()) {
+                            while (!cursor.isAfterLast()) {
                                 phoneNumber = cursor.getString(phoneIndex);
                                 allnumbers.add(phoneNumber);
                                 cursor.moveToNext();
 
                             }
-                        } else{
-                            Toast.makeText(UpdateAMesage.this,"No numbers found",Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(UpdateAMesage.this, "No numbers found", Toast.LENGTH_LONG).show();
                         }
-                    }catch (Exception e){
+                    } catch (Exception e) {
 
                     } finally {
-                        if(cursor != null){
+                        if (cursor != null) {
                             cursor.close();
                         }
 
@@ -231,30 +274,29 @@ public class UpdateAMesage extends AppCompatActivity  implements TimePickerDialo
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 String selectedNumber = items[which].toString();
-                                selectedNumber = selectedNumber.replace("-","");
+                                selectedNumber = selectedNumber.replace("-", "");
                                 contact_number.setText(selectedNumber);
                             }
                         });
                         AlertDialog alert = builder.create();
-                        if(allnumbers.size() > 1){
+                        if (allnumbers.size() > 1) {
                             alert.show();
-                        }else{
+                        } else {
                             String selectedNumber = phoneNumber;
-                            selectedNumber = selectedNumber.replace("-","");
+                            selectedNumber = selectedNumber.replace("-", "");
                             contact_number.setText(selectedNumber);
                         }
 
-                        if (phoneNumber.length() == 0){
-                            Toast.makeText(UpdateAMesage.this,"No numbers found.",Toast.LENGTH_LONG).show();
+                        if (phoneNumber.length() == 0) {
+                            Toast.makeText(UpdateAMesage.this, "No numbers found.", Toast.LENGTH_LONG).show();
                         }
                     }
                     break;
             }
-        }else{
+        } else {
             //activity result error action
         }
     }
-
 
 
     private void updatedata() {
@@ -306,8 +348,7 @@ public class UpdateAMesage extends AppCompatActivity  implements TimePickerDialo
                     Intent intent = new Intent(UpdateAMesage.this, Services.class);
                     startService(intent);
 
-                    Log.e("Service","Service started.");
-
+                    Log.e("Service", "Service started.");
 
 
                 } else {
@@ -317,6 +358,19 @@ public class UpdateAMesage extends AppCompatActivity  implements TimePickerDialo
         });
     }
 
+    @Override
+    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.set(year, month, dayOfMonth, 0, 0, 0);
+        String timeFormat = new SimpleDateFormat("yyyy MMMM dd").format(calendar.getTime());
+
+        SimpleDateFormat fullTimeFormatter = new SimpleDateFormat("yyyy-MM-dd");
+        setDate = fullTimeFormatter.format(calendar.getTime());
+
+        dateText.setText(timeFormat);
+        Log.e("Selected Date", "Date : " + setDate);
+    }
 
 
     class updateDatabse implements Runnable {
@@ -332,7 +386,7 @@ public class UpdateAMesage extends AppCompatActivity  implements TimePickerDialo
         String resId;
 
         updateDatabse(String id, String title, String contactNum, String messageOne, String messageTwo, String messageThree, String messageFour,
-                           String repeatText, String media) {
+                      String repeatText, String media) {
 
             this.resId = id;
             this.titleString = title;
@@ -362,6 +416,7 @@ public class UpdateAMesage extends AppCompatActivity  implements TimePickerDialo
             contentValues.put("CONTENT_FOUR", messageFour);
             contentValues.put("SEND_TIME", setTime);
             contentValues.put("REPEAT", repeatText);
+            contentValues.put("SEND_DATE", setDate);
             contentValues.put("MEDIA", media);
             contentValues.put("ONCE_SEND", 0);
 
@@ -373,7 +428,7 @@ public class UpdateAMesage extends AppCompatActivity  implements TimePickerDialo
                 UpdateAMesage.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(UpdateAMesage.this,"Updated successfully.",Toast.LENGTH_LONG).show();
+                        Toast.makeText(UpdateAMesage.this, "Updated successfully.", Toast.LENGTH_LONG).show();
 
                         Intent intent = new Intent(UpdateAMesage.this, MainActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
@@ -387,7 +442,7 @@ public class UpdateAMesage extends AppCompatActivity  implements TimePickerDialo
                 UpdateAMesage.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(UpdateAMesage.this,"Not updated. Error occurred.",Toast.LENGTH_LONG).show();
+                        Toast.makeText(UpdateAMesage.this, "Not updated. Error occurred.", Toast.LENGTH_LONG).show();
                     }
                 });
 
@@ -398,7 +453,7 @@ public class UpdateAMesage extends AppCompatActivity  implements TimePickerDialo
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private Boolean validatingTheForm(String title, String contactNum, String messageOne, String messageTwo, String messageThree, String messageFour) {
 
-        if (title.trim().length() != 0 && isPhoneNumberValid(contactNum) && setTime != null &&
+        if (title.trim().length() != 0 && isPhoneNumberValid(contactNum) && setTime != null && setDate != null &&
                 validMessageBody(messageOne, messageTwo, messageThree, messageFour) && validateMediaInput()) {
 
             Log.e("Full validation", "OK.");
@@ -439,7 +494,11 @@ public class UpdateAMesage extends AppCompatActivity  implements TimePickerDialo
 
     public boolean isPhoneNumberValid(String phoneNumber) {
         //NOTE: This should probably be a member variable.
-        Boolean res = PhoneNumberUtils.isGlobalPhoneNumber(phoneNumber);
+        String phNo = phoneNumber.replaceAll("[()\\-\\s]", "");
+        Log.e("Phone number", "This is the number: " + phoneNumber);
+        Log.e("Phone number", " This is the updated number : " + phNo);
+
+        Boolean res = PhoneNumberUtils.isGlobalPhoneNumber(phNo);
 
         if (res) {
             Log.e("Phone number", " OK.");
@@ -450,7 +509,6 @@ public class UpdateAMesage extends AppCompatActivity  implements TimePickerDialo
 
         return res;
     }
-
 
 
     @Override
@@ -473,6 +531,6 @@ public class UpdateAMesage extends AppCompatActivity  implements TimePickerDialo
         }
 
         time_text.setText(timeFormat + " " + time);
-        Log.e("Selected time","Time : "+setTime);
+        Log.e("Selected time", "Time : " + setTime);
     }
 }

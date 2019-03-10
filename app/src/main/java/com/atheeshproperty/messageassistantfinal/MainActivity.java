@@ -92,9 +92,28 @@ public class MainActivity extends AppCompatActivity implements messages_fragment
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+
+        switch (id)
+        {
+            case R.id.action_history :
+                Log.e("Action bar ","History actions clicked");
+
+                Intent in = new Intent(this,ViewHistory.class);
+                startActivity(in);
+                break;
+
+            case R.id.action_settings:
+                Log.e("Action bar button","Settings button clicked");
+                break;
+
         }
+
+       // if (id == R.id.action_settings) {
+         //   Log.e("Action bar ","Settings actions clicked");
+           // return true;
+        //}
+
+
 
         return super.onOptionsItemSelected(item);
     }

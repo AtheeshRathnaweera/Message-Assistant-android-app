@@ -358,6 +358,7 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
 
     public boolean isPhoneNumberValid(String phoneNumber) {
         //NOTE: This should probably be a member variable.
+
         Boolean res = PhoneNumberUtils.isGlobalPhoneNumber(phoneNumber);
 
         if (res) {
@@ -382,7 +383,10 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
                 mydb = databseHelper.getWritableDatabase();
 
                 String title = person_name.getText().toString();
-                String contactNum = contact_number.getText().toString();
+
+                String phNo= contact_number.getText().toString();
+                String contactNum  = phNo.replaceAll("[()\\-\\s]", "");
+
                 String message= content.getText().toString();
 
                 int media = 0;

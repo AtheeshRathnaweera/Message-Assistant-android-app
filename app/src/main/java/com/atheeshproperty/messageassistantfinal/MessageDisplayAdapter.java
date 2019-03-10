@@ -103,8 +103,6 @@ public class MessageDisplayAdapter extends RecyclerView.Adapter<MessageDisplayAd
         messageViewHolder.messageTitle.setText(cardData.get(i).getTitle());
         messageViewHolder.contactNumber.setText(cardData.get(i).getConatactNumber());
 
-        messageViewHolder.repeatType.setVisibility(View.INVISIBLE);
-
         messageViewHolder.displayType.setText(repeatText);
         messageViewHolder.displayTime.setText(time);
 
@@ -144,6 +142,7 @@ public class MessageDisplayAdapter extends RecyclerView.Adapter<MessageDisplayAd
                         in.putExtra("mFour",cardData.get(i).getMessageFour());
                         in.putExtra("time",cardData.get(i).getSendTime());
                         in.putExtra("repeat",cardData.get(i).getRepeat());
+                        in.putExtra("date",cardData.get(i).getSendDate());
                         in.putExtra("media",cardData.get(i).getMedia());
 
                         myContext.startActivity(in);
@@ -177,6 +176,9 @@ public class MessageDisplayAdapter extends RecyclerView.Adapter<MessageDisplayAd
 
 
         if(!repeatText.equals("Once")){
+
+            messageViewHolder.repeatType.setText("Started from : "+cardData.get(i).getSendDate());
+
             if(cardData.get(i).getPause() == 0 ){
                 Log.e("Pause","Not paused.");
                 messageViewHolder.notification.setImageResource(R.drawable.ic_notifications_active_black_24dp);
@@ -210,9 +212,10 @@ public class MessageDisplayAdapter extends RecyclerView.Adapter<MessageDisplayAd
         }else{
 
             if(cardData.get(i).getOnceSend() != 0){
-                Log.e("Once","This is a once entry.");
+                Log.e("Once","Once message has sent.");
                 messageViewHolder.notification.setImageResource(R.drawable.ic_check_circle_black_active);
             }else{
+                Log.d("Once","Once message not sent yet.");
                 messageViewHolder.notification.setImageResource(R.drawable.ic_check_circle_black_24dp);
             }
 

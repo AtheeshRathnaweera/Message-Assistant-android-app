@@ -105,19 +105,19 @@ public class AlertReceiver extends BroadcastReceiver {
             }
             if (media == 2) {
                 //Text message
-                sendAText(phone_number,messageArray, context);
-                Log.e("Text message","Sent");
+                sendAText(phone_number,messageArray, context,idString);
+                Log.e("Text message","Sent"+"id: "+idString);
             }
 
             if (media == 3) {
                 //both
                 //sendViaWhatsapp(phone_number, messageArray, context);
-                sendAText(phone_number,messageArray, context);
-                Log.e("Text message","Sent");
+                sendAText(phone_number,messageArray, context,idString);
+                Log.e("Text message","Sent"+"id: "+idString);
 
             }
-            updateTheOnceSendColumn update = new updateTheOnceSendColumn(idString);
-            new Thread(update).start();
+            //updateTheOnceSendColumn update = new updateTheOnceSendColumn(idString);
+            //new Thread(update).start();
 
 
         } else {
@@ -127,14 +127,14 @@ public class AlertReceiver extends BroadcastReceiver {
             }
             if (media == 2 && paused == 0) {
                 //Text message
-                sendAText(phone_number, messageArray, context);
+                sendAText(phone_number, messageArray, context,idString);
                 Log.e("Text message","Sent");
             }
 
             if (media == 3 && paused ==0) {
                 //both
                // sendViaWhatsapp(phone_number, messageArray, context);
-                sendAText(phone_number, messageArray, context);
+                sendAText(phone_number, messageArray, context,idString);
                 Log.e("Text message","Sent");
 
             }
@@ -174,7 +174,7 @@ public class AlertReceiver extends BroadcastReceiver {
     }
 
 
-    private void sendAText(String number, ArrayList<String> messages, Context context) {
+    private void sendAText(String number, ArrayList<String> messages, Context context, String id) {
 
         int bound = messages.size();
 
@@ -189,10 +189,14 @@ public class AlertReceiver extends BroadcastReceiver {
 
         }else{
 
+            Log.e("Text message","Text message create intent code started");
+
             Intent intent = new Intent(context, smsSentReceiver.class);
             intent.putExtra("Sent","SENT");
             intent.putExtra("Title",title);
+            intent.putExtra("ID",id);
             PendingIntent sentPI = PendingIntent.getBroadcast(context,1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
 
             SmsManager sms = SmsManager.getDefault();
             sms.sendTextMessage(number, null, res_message, sentPI, null);

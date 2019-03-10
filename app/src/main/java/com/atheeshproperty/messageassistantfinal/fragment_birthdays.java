@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,7 @@ public class fragment_birthdays extends Fragment {
     private String mParam2;
 
     private RecyclerView recyclerView;
+    private TextView emptyText;
 
     private SQLiteDatabase mydb;
 
@@ -87,6 +89,7 @@ public class fragment_birthdays extends Fragment {
 
         context = view.getContext();
         recyclerView = view.findViewById(R.id.HomeBirthdayRecyclerView);
+        emptyText = view.findViewById(R.id.empty_birthday_view);
 
         LinearLayoutManager layout = new LinearLayoutManager(this.getActivity());
         recyclerView.setLayoutManager(layout);
@@ -188,17 +191,28 @@ public class fragment_birthdays extends Fragment {
 
             Log.e("received", "received number of data : " + birthdayItems.size());
 
+            if(birthdayItems.size() == 0){
+                emptyText.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
 
-            final BirthdayMessageDisplayAdapter myAdpater = new BirthdayMessageDisplayAdapter(context, birthdayItems);
+            }else{
 
-            mainHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Log.e("Handler","Handler started ");
-                    recyclerView.setAdapter(myAdpater);
-                    myAdpater.notifyDataSetChanged();
-                }
-            });
+                emptyText.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
+
+                final BirthdayMessageDisplayAdapter myAdpater = new BirthdayMessageDisplayAdapter(context, birthdayItems);
+
+                mainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.e("Handler","Handler started ");
+                        recyclerView.setAdapter(myAdpater);
+                        myAdpater.notifyDataSetChanged();
+                    }
+                });
+
+            }
+
 
         }
     }

@@ -11,6 +11,7 @@ public class MessageObject {
     private String messageFour;
     private String sendTime;
     private String repeat;
+    private String sendDate;
     private String media;
     private int pause;
     private int onceSend;
@@ -21,7 +22,7 @@ public class MessageObject {
     }
 
     MessageObject(int id,  String title, String conatctNumber, String messageOne, String messageTwo, String messageThree, String messageFour,
-            String sendTime, String repeat, String media, int pause, int onceSend){
+            String sendTime, String repeat, String sendDate, String media, int pause, int onceSend){
 
         this.id = id;
         this.title = title;
@@ -32,10 +33,19 @@ public class MessageObject {
         this.messageFour = messageFour;
         this.sendTime = sendTime;
         this.repeat = repeat;
+        this.sendDate = sendDate;
         this.media = media;
         this.pause = pause;
         this.onceSend = onceSend;
 
+    }
+
+    public String getSendDate() {
+        return sendDate;
+    }
+
+    public void setSendDate(String sendDate) {
+        this.sendDate = sendDate;
     }
 
     public int getOnceSend() {

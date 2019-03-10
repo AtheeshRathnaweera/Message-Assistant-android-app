@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,7 @@ public class messages_fragment extends Fragment {
     private String mParam2;
 
     private RecyclerView recyclerView;
+    private TextView emptyTextView;
 
     private OnFragmentInteractionListener mListener;
     private SQLiteDatabase mydb;
@@ -90,6 +92,7 @@ public class messages_fragment extends Fragment {
 
         context = view.getContext();
         recyclerView = view.findViewById(R.id.HomeMessageRecyclerView);
+        emptyTextView = view.findViewById(R.id.empty_view);
 
         LinearLayoutManager layout = new LinearLayoutManager(this.getActivity());
         recyclerView.setLayoutManager(layout);
@@ -183,6 +186,7 @@ public class messages_fragment extends Fragment {
                     message.setSendTime(c.getString(c.getColumnIndex("SEND_TIME")));
                     message.setRepeat(c.getString(c.getColumnIndex("REPEAT")));
                     message.setMedia(c.getString(c.getColumnIndex("MEDIA")));
+                    message.setSendDate(c.getString(c.getColumnIndex("SEND_DATE")));
                     message.setPause(Integer.parseInt(c.getString(c.getColumnIndex("PAUSE"))));
                     message.setOnceSend(Integer.parseInt(c.getString(c.getColumnIndex("ONCE_SEND"))));
 
@@ -196,16 +200,27 @@ public class messages_fragment extends Fragment {
 
             Log.e("received", "received number of data : " + messageItems.size());
 
-            final MessageDisplayAdapter myAdapter = new MessageDisplayAdapter(context, messageItems);
+            if(messageItems.size() == 0){
+                emptyTextView.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
 
-            mainHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Log.e("Handler","Handler started ");
-                    recyclerView.setAdapter(myAdapter);
-                    myAdapter.notifyDataSetChanged();
-                }
-            });
+            }else{
+                emptyTextView.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
+
+                final MessageDisplayAdapter myAdapter = new MessageDisplayAdapter(context, messageItems);
+
+                mainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.e("Handler","Handler started ");
+                        recyclerView.setAdapter(myAdapter);
+                        myAdapter.notifyDataSetChanged();
+                    }
+                });
+
+
+            }
 
         }
     }

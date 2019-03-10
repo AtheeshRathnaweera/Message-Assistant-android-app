@@ -3,12 +3,14 @@ package com.atheeshproperty.messageassistantfinal;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SyncRequest;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.database.Cursor;
@@ -30,6 +32,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
@@ -44,18 +47,18 @@ import java.util.Calendar;
 import java.util.List;
 
 
-public class AddNewMessage extends AppCompatActivity implements TimePickerDialog.OnTimeSetListener {
+public class AddNewMessage extends AppCompatActivity implements TimePickerDialog.OnTimeSetListener, DatePickerDialog.OnDateSetListener {
 
     private EditText title_text,
             message_one, message_two, message_three,
             message_four;
 
-    private TextView time_text, contact_number;
-    private ImageButton time_picker, openContacts;
+    private TextView time_text, contact_number, dateLabel, dateText;
+    private ImageButton time_picker, openContacts, datePicker;
 
     private Button cancel_button, save_button;
 
-    private String setTime;
+    private String setTime, setDate;
 
     private RadioGroup timeGroup;
     private RadioButton selectedRadioButton;
@@ -78,8 +81,11 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
         message_three = findViewById(R.id.message_body_three);
         message_four = findViewById(R.id.message_body_four);
 
-        time_text = findViewById(R.id.message_time);
+        dateLabel = findViewById(R.id.messageDateLabel);
+        dateText = findViewById(R.id.messageDateText);
+        datePicker = findViewById(R.id.message_date_picker);
 
+        time_text = findViewById(R.id.message_time);
         time_picker = findViewById(R.id.message_time_picker);
 
         cancel_button = findViewById(R.id.cancel);
@@ -97,13 +103,47 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
 
         whatsapp.setVisibility(View.INVISIBLE);//Hide the wtsapp check box
 
-        time_picker.setOnClickListener(new View.OnClickListener() {
+
+        setDateAndTimePickers();
+        openAndCancelButtonEvents();
+        changeTheSetDateLableAccordingToTheButton();
+        checkWhatsappInstalledOrNot();
+        checkMessagePermissionWhenTextClick();
+        saveData();
+
+
+    }
+
+    public void changeTheSetDateLableAccordingToTheButton() {
+
+        timeGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
-            public void onClick(View v) {
-                DialogFragment timePicker = new TimePickerFragment();
-                timePicker.show(getSupportFragmentManager(), "time picker");
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                // checkedId is the RadioButton selected
+                Log.e("Selected radio", "id: " + checkedId);
+
+                if (checkedId == R.id.everyDayButton) {
+                    Calendar todayDate = Calendar.getInstance();
+
+                    SimpleDateFormat saveFormat = new SimpleDateFormat("yyyy-MM-dd");
+                    setDate = saveFormat.format(todayDate.getTime());
+                    String timeFormat = new SimpleDateFormat("yyyy MMMM dd").format(todayDate.getTime());
+
+                    dateLabel.setText("Start from : ");
+                    dateText.setText(timeFormat);
+                    datePicker.setVisibility(View.INVISIBLE);
+
+                } else {
+                    dateLabel.setText("Send date : ");
+                    dateText.setText("Set a date");
+                    datePicker.setVisibility(View.VISIBLE );
+                }
             }
         });
+
+    }
+
+    public void openAndCancelButtonEvents() {
 
         cancel_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -120,7 +160,7 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
                     Log.e("Message permission", " requested.");
                     // ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS},1);
 
-                        ActivityCompat.requestPermissions(AddNewMessage.this, new String[]{Manifest.permission.READ_CONTACTS}, 2);
+                    ActivityCompat.requestPermissions(AddNewMessage.this, new String[]{Manifest.permission.READ_CONTACTS}, 2);
 
 
                 } else {
@@ -134,24 +174,39 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
         });
 
 
-        checkWhatsappInstalledOrNot();
-        checkMessagePermissionWhenTextClick();
-        saveData();
+    }
+
+    public void setDateAndTimePickers() {
+        time_picker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DialogFragment timePicker = new TimePickerFragment();
+                timePicker.show(getSupportFragmentManager(), "time picker");
+            }
+        });
+
+        datePicker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DialogFragment datePicker = new DataPickerFragment();
+                datePicker.show(getSupportFragmentManager(), "date picker");
+            }
+        });
 
 
     }
 
-    private void checkWhatsappInstalledOrNot(){
+    private void checkWhatsappInstalledOrNot() {
 
         whatsapp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(appInstalledOrNot("com.whatsapp")){
+                if (appInstalledOrNot("com.whatsapp")) {
 
-                    Log.e("whatsapp installed","yes");
+                    Log.e("whatsapp installed", "yes");
 
-                }else{
-                    Log.e("whatsapp installed","no");
+                } else {
+                    Log.e("whatsapp installed", "no");
 
                     final AlertDialog.Builder builder = new AlertDialog.Builder(AddNewMessage.this);
                     builder.setTitle("Notice");
@@ -213,40 +268,40 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(resultCode == RESULT_OK){
+        if (resultCode == RESULT_OK) {
             switch (requestCode) {
 
                 case 1:
                     Cursor cursor = null;
-                    String phoneNumber= null;
+                    String phoneNumber = null;
                     List<String> allnumbers = new ArrayList<String>();
                     int phoneIndex = 0;
 
-                    try{
+                    try {
 
                         assert data != null;
                         Uri result = data.getData();
                         assert result != null;
                         String id = result.getLastPathSegment();
                         cursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
-                                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=?", new String[] {id},null);
+                                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=?", new String[]{id}, null);
                         assert cursor != null;
                         phoneIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DATA);
 
-                        if(cursor.moveToFirst()){
-                            while (!cursor.isAfterLast()){
+                        if (cursor.moveToFirst()) {
+                            while (!cursor.isAfterLast()) {
                                 phoneNumber = cursor.getString(phoneIndex);
                                 allnumbers.add(phoneNumber);
                                 cursor.moveToNext();
 
                             }
-                        } else{
-                            Toast.makeText(AddNewMessage.this,"No numbers found",Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(AddNewMessage.this, "No numbers found", Toast.LENGTH_LONG).show();
                         }
-                    }catch (Exception e){
-                            e.printStackTrace();
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     } finally {
-                        if(cursor != null){
+                        if (cursor != null) {
                             cursor.close();
                         }
 
@@ -257,28 +312,28 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 String selectedNumber = items[which].toString();
-                                selectedNumber = selectedNumber.replace("-","");
+                                selectedNumber = selectedNumber.replace("-", "");
                                 contact_number.setText(selectedNumber);
                             }
                         });
                         AlertDialog alert = builder.create();
-                        if(allnumbers.size() > 1){
+                        if (allnumbers.size() > 1) {
                             alert.show();
-                        }else{
+                        } else {
                             String selectedNumber = phoneNumber;
                             assert selectedNumber != null;
-                            selectedNumber = selectedNumber.replace("-","");
+                            selectedNumber = selectedNumber.replace("-", "");
                             contact_number.setText(selectedNumber);
                         }
 
                         assert phoneNumber != null;
-                        if (phoneNumber.length() == 0){
-                            Toast.makeText(AddNewMessage.this,"No numbers found.",Toast.LENGTH_LONG).show();
+                        if (phoneNumber.length() == 0) {
+                            Toast.makeText(AddNewMessage.this, "No numbers found.", Toast.LENGTH_LONG).show();
                         }
                     }
                     break;
             }
-        }else{
+        } else {
             //activity result error action
         }
     }
@@ -350,11 +405,24 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
         try {
             pm.getPackageInfo(uri, PackageManager.GET_ACTIVITIES);
             app_installed = true;
-        }
-        catch (PackageManager.NameNotFoundException e) {
+        } catch (PackageManager.NameNotFoundException e) {
             app_installed = false;
         }
         return app_installed;
+    }
+
+    @Override
+    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.set(year, month, dayOfMonth, 0, 0, 0);
+        String timeFormat = new SimpleDateFormat("yyyy MMMM dd").format(calendar.getTime());
+
+        SimpleDateFormat fullTimeFormatter = new SimpleDateFormat("yyyy-MM-dd");
+        setDate = fullTimeFormatter.format(calendar.getTime());
+
+        dateText.setText(timeFormat);
+        Log.e("Selected Date", "Date : " + setDate);
     }
 
 
@@ -396,9 +464,10 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
             contentValues.put("CONTENT_FOUR", messageFour);
             contentValues.put("SEND_TIME", setTime);
             contentValues.put("REPEAT", repeatText);
+            contentValues.put("SEND_DATE", setDate);
             contentValues.put("MEDIA", media);
             contentValues.put("ONCE_SEND", 0);
-            contentValues.put("PAUSE",0);
+            contentValues.put("PAUSE", 0);
 
             long res = mydb.insert("MESSAGE_DATA", null, contentValues);
 
@@ -432,7 +501,7 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private Boolean validatingTheForm(String title, String contactNum, String messageOne, String messageTwo, String messageThree, String messageFour) {
 
-        if (title.trim().length() != 0 && isPhoneNumberValid(contactNum) && setTime != null &&
+        if (title.trim().length() != 0 && isPhoneNumberValid(contactNum) && setTime != null && setDate != null &&
                 validMessageBody(messageOne, messageTwo, messageThree, messageFour) && validateMediaInput()) {
 
             Log.e("Full validation", "OK.");
@@ -472,7 +541,12 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
 
     public boolean isPhoneNumberValid(String phoneNumber) {
         //NOTE: This should probably be a member variable.
-        Boolean res = PhoneNumberUtils.isGlobalPhoneNumber(phoneNumber);
+
+        String phNo = phoneNumber.replaceAll("[()\\-\\s]", "");
+        Log.e("Phone number", "This is the number: " + phoneNumber);
+        Log.e("Phone number", " This is the updated number : " + phNo);
+
+        Boolean res = PhoneNumberUtils.isGlobalPhoneNumber(phNo);
 
         if (res) {
             Log.e("Phone number", " OK.");
@@ -531,7 +605,6 @@ public class AddNewMessage extends AppCompatActivity implements TimePickerDialog
         finish();
 
     }
-
 
 
 }

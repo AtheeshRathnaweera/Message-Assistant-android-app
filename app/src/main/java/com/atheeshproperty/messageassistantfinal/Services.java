@@ -42,17 +42,19 @@ public class Services extends Service {
 
             final long ONE_MINUTE_IN_MILLIS = 60000;
 
-            String query = "SELECT MESSAGE_ID,SEND_TIME,REPEAT,ONCE_SEND,PAUSE FROM MESSAGE_DATA";//Retrieve data from message table
+            String query = "SELECT MESSAGE_ID,SEND_TIME,REPEAT,SEND_DATE,ONCE_SEND,PAUSE FROM MESSAGE_DATA";//Retrieve data from message table
             @SuppressLint("Recycle") Cursor res = mydb.rawQuery(query,null);
 
             int id;
             String time = null;
             String repeat = null;
+            String date = null;
             int paused ;
             int once_send;
 
             SimpleDateFormat fullTimeFormatter = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
             SimpleDateFormat defaultFormatter = new SimpleDateFormat("HH:mm:ss");
+            SimpleDateFormat onlyDateFormatter = new SimpleDateFormat("yyyy-MM-dd");
 
             AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
@@ -65,35 +67,14 @@ public class Services extends Service {
                     id = res.getInt(res.getColumnIndex("MESSAGE_ID"));
                     time = res.getString(res.getColumnIndex("SEND_TIME"));
                     repeat = res.getString(res.getColumnIndex("REPEAT"));
+                    date = res.getString(res.getColumnIndex("SEND_DATE"));
                     once_send = res.getInt(res.getColumnIndex("ONCE_SEND"));
                     paused = res.getInt(res.getColumnIndex("PAUSE"));
 
                     Calendar currentTime = Calendar.getInstance();//Getting current system time
 
                     //Compare with current time
-                    String now = defaultFormatter.format(currentTime.getTime());
-                    Date receivedTimeObj = null;
-                    try {
-                       receivedTimeObj = defaultFormatter.parse(time);
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-
-                    String savedSendTime = defaultFormatter.format(receivedTimeObj);
-
-                    SimpleDateFormat onlyDateFormatter = new SimpleDateFormat("yyyy-MM-dd");
-                    String todaydate = onlyDateFormatter.format(currentTime.getTime());//get today date for create full date object
-
-                    String completeTime = todaydate +"-"+time;//Adding today date string with morning time string
-
-                    Date savedAlertTime = null;
-
-
-                    try {
-                        savedAlertTime = fullTimeFormatter.parse(completeTime);
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
+                    String now = fullTimeFormatter.format(currentTime.getTime());
 
                     Intent intent = new Intent(Services.this, AlertReceiver.class);
                     intent.putExtra("id",id);
@@ -106,20 +87,31 @@ public class Services extends Service {
 
                         if(repeat.equals("Once")){
                             Log.e("once alarms","Once alarms ");
+
+                            String completeTime = date +"-"+time;//Adding date string with time string
+
+                            Date savedCompleteDate = null;
+
+                            try {
+                                savedCompleteDate = fullTimeFormatter.parse(completeTime);// complete date object
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+
                             if(once_send == 0){
 
-                                if(now.compareTo(savedSendTime) < 0){
+                                if(now.compareTo(completeTime) < 0){
                                     //not passed
                                     PendingIntent pendingIntentOnce = PendingIntent.getBroadcast(Services.this,1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                                    alarm.setExact(AlarmManager.RTC_WAKEUP,savedAlertTime.getTime(), pendingIntentOnce);
-                                    Log.e("Not passed once alarms","Once alarm set. id: "+id);
+                                    alarm.setExact(AlarmManager.RTC_WAKEUP,savedCompleteDate.getTime(), pendingIntentOnce);
+                                    Log.e("Not passed once alarms","Once alarm set. id: "+id+" time: "+completeTime);
 
                                 }else{
 
                                     //passed
                                     Log.e("Passed alarms","Once updated.");
                                     Calendar c = Calendar.getInstance();
-                                    c.setTime(savedAlertTime);
+                                    c.setTime(savedCompleteDate);
                                     c.add(Calendar.DATE,1);
 
                                     Date newDate = c.getTime();
@@ -135,13 +127,24 @@ public class Services extends Service {
 
                         }else{
 
+                            String todayDateString = onlyDateFormatter.format(currentTime.getTime());
+
+                            String fullDateString = todayDateString+"-"+time;
+                            Date completeDate = null;
+
+                            try {
+                                 completeDate = fullTimeFormatter.parse(fullDateString);
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+
                             Date updatedDate = null;
 
                             Random rand = new Random();
 
                             int addMinutes = rand.nextInt(120);
-                            assert savedAlertTime != null;
-                            long t = savedAlertTime.getTime();
+                            assert completeDate != null;
+                            long t = completeDate.getTime();
                             updatedDate = new Date(t + (addMinutes * ONE_MINUTE_IN_MILLIS));
 
                             String updatedTime = defaultFormatter.format(updatedDate);
