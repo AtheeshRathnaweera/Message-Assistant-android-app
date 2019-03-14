@@ -37,11 +37,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String BIRTHDAY_CONTENT= "BIRTHDAY_CONTENT";
     public static final String BIRTHDAY_SEND_TIME = "BIRTHDAY_SEND_TIME";
     public static final String BIRTHDAY_MEDIA = "BIRTHDAY_MEDIA";
+    public static final String  BIRTHDAY_AUTO_TEXT = "BIRTHDAY_AUTO";
     public static final String BIRTHDAY_PAUSE = "BIRTHDAY_PAUSE";
 
     //History table
     public static final String HISTORY_TABLE_NAME = "HISTORY_TABLE";
     public static final String HISTORY_ID = "HISTORY_ID";
+    public static final String HISTORY_MES_TYPE = "HISTORY_MES_TYPE";
     public static final String HISTORY_MES_ID = "HISTORY_MES_ID";
     public static final String HISTORY_MES_TITLE = "HISTORY_MES_TITLE";
     public static final String HISTORY_MES_NUMBER = "HISTORY_MES_NUMBER";
@@ -83,6 +85,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 + BIRTHDAY_CONTENT + " TEXT,"
                 + BIRTHDAY_SEND_TIME + " TEXT,"
                 + BIRTHDAY_MEDIA + " TEXT,"
+                + BIRTHDAY_AUTO_TEXT + " TEXT,"
                 + BIRTHDAY_PAUSE + " INTEGER)";
 
         db.execSQL(CREATE_BIRTHDAY_TABLE);
@@ -92,6 +95,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 HISTORY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + HISTORY_MES_ID + " TEXT,"
                 + HISTORY_MES_TITLE + " TEXT,"
+                + HISTORY_MES_TYPE + " TEXT,"
                 + HISTORY_MES_NUMBER + " TEXT,"
                 + HISTORY_MES_CONTENT + " TEXT,"
                 + HISTORY_MES_SENTTIME + " TEXT,"

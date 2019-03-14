@@ -49,7 +49,7 @@
             android:noHistory="false"/>
 
         <activity
-            android:name=".ViewHistory"
+            android:name=".DisplayHistory"
             android:label="Message History"
             android:noHistory="false"/>
 

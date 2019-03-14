@@ -73,6 +73,9 @@ public class MainActivity extends AppCompatActivity implements messages_fragment
 
         AppRequirements.startPowerSaverIntent(this);
 
+        Intent intent = new Intent(MainActivity.this, Services.class);
+        startService(intent);
+
 
     }
 
@@ -98,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements messages_fragment
             case R.id.action_history :
                 Log.e("Action bar ","History actions clicked");
 
-                Intent in = new Intent(this,ViewHistory.class);
+                Intent in = new Intent(this,DisplayHistory.class);
                 startActivity(in);
                 break;
 

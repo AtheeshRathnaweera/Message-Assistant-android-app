@@ -127,7 +127,8 @@ public class Services extends Service {
 
                         }else{
 
-                            String todayDateString = onlyDateFormatter.format(currentTime.getTime());
+                            Calendar current = Calendar.getInstance();
+                            String todayDateString = onlyDateFormatter.format(current.getTime());
 
                             String fullDateString = todayDateString+"-"+time;
                             Date completeDate = null;
@@ -147,7 +148,11 @@ public class Services extends Service {
                             long t = completeDate.getTime();
                             updatedDate = new Date(t + (addMinutes * ONE_MINUTE_IN_MILLIS));
 
-                            String updatedTime = defaultFormatter.format(updatedDate);
+                            String updatedTime = fullTimeFormatter.format(updatedDate);
+
+                            String updatedFullTime = todayDateString+"-"+updatedTime;
+
+                            Log.e("Everyday alarm ","This is the time :"+updatedTime+" res"+now.compareTo(updatedTime));
 
 
                             if(now.compareTo(updatedTime) < 0){

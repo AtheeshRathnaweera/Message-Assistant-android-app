@@ -94,22 +94,21 @@ public class fragment_birthdays extends Fragment {
         LinearLayoutManager layout = new LinearLayoutManager(this.getActivity());
         recyclerView.setLayoutManager(layout);
 
-        if(recyclerView == null){
-            Log.e("OnCreateView","Recycler view null");
-        }else{
-            Log.e("OnCreateView","Recycler view found.");
+        if (recyclerView == null) {
+            Log.e("OnCreateView", "Recycler view null");
+        } else {
+            Log.e("OnCreateView", "Recycler view found.");
             fragment_birthdays.populateRecyclerView runnable = new fragment_birthdays.populateRecyclerView();
             new Thread(runnable).start();
 
         }
 
-        if(context == null){
-            Log.e("OnCreateView","context null");
+        if (context == null) {
+            Log.e("OnCreateView", "context null");
 
-        }else{
-            Log.e("OnCreateView","context not null"+context.toString());
+        } else {
+            Log.e("OnCreateView", "context not null" + context.toString());
         }
-
 
 
         return view;
@@ -154,9 +153,9 @@ public class fragment_birthdays extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    private class populateRecyclerView implements Runnable{
+    private class populateRecyclerView implements Runnable {
 
-        populateRecyclerView(){
+        populateRecyclerView() {
 
 
         }
@@ -177,10 +176,11 @@ public class fragment_birthdays extends Fragment {
                     birthday.setName(c.getString(c.getColumnIndex("BIRTHDAY_TITLE")));
                     birthday.setBirthdate(c.getString(c.getColumnIndex("BIRTHDAY_DATE")));
                     birthday.setContactNumber(c.getString(c.getColumnIndex("BIRTHDAY_CONTACT_NUMBER")));
-                   birthday.setMessage(c.getString(c.getColumnIndex("BIRTHDAY_CONTENT")));
+                    birthday.setMessage(c.getString(c.getColumnIndex("BIRTHDAY_CONTENT")));
                     birthday.setSendTime(c.getString(c.getColumnIndex("BIRTHDAY_SEND_TIME")));
                     birthday.setMedia(c.getString(c.getColumnIndex("BIRTHDAY_MEDIA")));
                     birthday.setPause(Integer.parseInt(c.getString(c.getColumnIndex("BIRTHDAY_PAUSE"))));
+                    birthday.setAutoText(c.getString(c.getColumnIndex("BIRTHDAY_AUTO")));
 
                     birthdayItems.add(birthday);
                 } while (c.moveToNext());
@@ -191,11 +191,11 @@ public class fragment_birthdays extends Fragment {
 
             Log.e("received", "received number of data : " + birthdayItems.size());
 
-            if(birthdayItems.size() == 0){
+            if (birthdayItems.size() == 0) {
                 emptyText.setVisibility(View.VISIBLE);
                 recyclerView.setVisibility(View.GONE);
 
-            }else{
+            } else {
 
                 emptyText.setVisibility(View.GONE);
                 recyclerView.setVisibility(View.VISIBLE);
@@ -205,7 +205,7 @@ public class fragment_birthdays extends Fragment {
                 mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        Log.e("Handler","Handler started ");
+                        Log.e("Handler", "Handler started ");
                         recyclerView.setAdapter(myAdpater);
                         myAdpater.notifyDataSetChanged();
                     }

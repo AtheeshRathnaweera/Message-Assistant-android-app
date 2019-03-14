@@ -40,7 +40,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-public class AddNewBirthday extends AppCompatActivity implements TimePickerDialog.OnTimeSetListener, DatePickerDialog.OnDateSetListener{
+public class AddNewBirthday extends AppCompatActivity implements TimePickerDialog.OnTimeSetListener, DatePickerDialog.OnDateSetListener {
 
     private String setTime, setDate;
     private TextView time_text, contact_number, birth_date;
@@ -49,10 +49,14 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
 
     private CheckBox whatsapp, TextMessage;
 
+    private RadioGroup timeGroup;
+    private RadioButton selectedRadioButton;
+
     private Button cancel_button, save_button;
 
     private DatabaseHandler databseHelper;
     private SQLiteDatabase mydb;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,8 +75,13 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
         whatsapp = findViewById(R.id.message_type_whatsapp);
         TextMessage = findViewById(R.id.message_type_text);
 
+        timeGroup = findViewById(R.id.autoRadioGroup);
+        selectedRadioButton = findViewById(R.id.noButton);
+        selectedRadioButton.setChecked(true);
+
         cancel_button = findViewById(R.id.cancel);
         save_button = findViewById(R.id.save);
+
 
         cancel_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,7 +123,7 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
             @Override
             public void onClick(View v) {
                 DialogFragment datePicker = new DataPickerFragment();
-                datePicker.show(getSupportFragmentManager(),"date picker");
+                datePicker.show(getSupportFragmentManager(), "date picker");
             }
         });
 
@@ -123,17 +132,17 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
         saveData();
     }
 
-    private void checkWhatsappInstalledOrNot(){
+    private void checkWhatsappInstalledOrNot() {
 
         whatsapp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(appInstalledOrNot("com.whatsapp")){
+                if (appInstalledOrNot("com.whatsapp")) {
 
-                    Log.e("whatsapp installed","yes");
+                    Log.e("whatsapp installed", "yes");
 
-                }else{
-                    Log.e("whatsapp installed","no");
+                } else {
+                    Log.e("whatsapp installed", "no");
 
                     final AlertDialog.Builder builder = new AlertDialog.Builder(AddNewBirthday.this);
                     builder.setTitle("Notice");
@@ -165,8 +174,7 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
         try {
             pm.getPackageInfo(uri, PackageManager.GET_ACTIVITIES);
             app_installed = true;
-        }
-        catch (PackageManager.NameNotFoundException e) {
+        } catch (PackageManager.NameNotFoundException e) {
             app_installed = false;
         }
         return app_installed;
@@ -235,7 +243,7 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
     }
 
     private void communicateWithMain() {
-        Log.e("Communicate with main","Executed.");
+        Log.e("Communicate with main", "Executed.");
         Intent intent = new Intent();
         setResult(Activity.RESULT_OK, intent);
         finish();
@@ -245,40 +253,40 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(resultCode == RESULT_OK){
+        if (resultCode == RESULT_OK) {
             switch (requestCode) {
 
                 case 1:
                     Cursor cursor = null;
-                    String phoneNumber= null;
+                    String phoneNumber = null;
                     List<String> allnumbers = new ArrayList<String>();
                     int phoneIndex = 0;
 
-                    try{
+                    try {
 
                         assert data != null;
                         Uri result = data.getData();
                         assert result != null;
                         String id = result.getLastPathSegment();
                         cursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
-                                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=?", new String[] {id},null);
+                                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=?", new String[]{id}, null);
                         assert cursor != null;
                         phoneIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DATA);
 
-                        if(cursor.moveToFirst()){
-                            while (!cursor.isAfterLast()){
+                        if (cursor.moveToFirst()) {
+                            while (!cursor.isAfterLast()) {
                                 phoneNumber = cursor.getString(phoneIndex);
                                 allnumbers.add(phoneNumber);
                                 cursor.moveToNext();
 
                             }
-                        } else{
-                            Toast.makeText(AddNewBirthday.this,"No numbers found",Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(AddNewBirthday.this, "No numbers found", Toast.LENGTH_LONG).show();
                         }
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     } finally {
-                        if(cursor != null){
+                        if (cursor != null) {
                             cursor.close();
                         }
 
@@ -289,28 +297,28 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 String selectedNumber = items[which].toString();
-                                selectedNumber = selectedNumber.replace("-","");
+                                selectedNumber = selectedNumber.replace("-", "");
                                 contact_number.setText(selectedNumber);
                             }
                         });
                         AlertDialog alert = builder.create();
-                        if(allnumbers.size() > 1){
+                        if (allnumbers.size() > 1) {
                             alert.show();
-                        }else{
+                        } else {
                             String selectedNumber = phoneNumber;
                             assert selectedNumber != null;
-                            selectedNumber = selectedNumber.replace("-","");
+                            selectedNumber = selectedNumber.replace("-", "");
                             contact_number.setText(selectedNumber);
                         }
 
                         assert phoneNumber != null;
-                        if (phoneNumber.length() == 0){
-                            Toast.makeText(AddNewBirthday.this,"No numbers found.",Toast.LENGTH_LONG).show();
+                        if (phoneNumber.length() == 0) {
+                            Toast.makeText(AddNewBirthday.this, "No numbers found.", Toast.LENGTH_LONG).show();
                         }
                     }
                     break;
             }
-        }else{
+        } else {
             //activity result error action
         }
     }
@@ -384,12 +392,13 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
 
                 String title = person_name.getText().toString();
 
-                String phNo= contact_number.getText().toString();
-                String contactNum  = phNo.replaceAll("[()\\-\\s]", "");
+                String phNo = contact_number.getText().toString();
+                String contactNum = phNo.replaceAll("[()\\-\\s]", "");
 
-                String message= content.getText().toString();
+                String message = content.getText().toString();
 
                 int media = 0;
+                int autoText = 0;
 
                 //Maintain an integer value for save media type
                 if (whatsapp.isChecked()) {
@@ -400,6 +409,10 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
                     media = media + 2;
                 }
 
+                int selectedId = timeGroup.getCheckedRadioButtonId();//Get selected repeat button id
+                selectedRadioButton = findViewById(selectedId);
+                String autoTypeText = (String) selectedRadioButton.getText();//get selected repeat time button text
+
                 String mediaString = String.valueOf(media);
 
                 if (!whatsapp.isChecked() && !TextMessage.isChecked()) {
@@ -408,15 +421,15 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
 
                 if (validatingTheForm(title, contactNum, message)) {
 
-                    AddNewBirthday.saveDataToDatabase saveRunnable = new AddNewBirthday.saveDataToDatabase(title, contactNum, message, mediaString);
+                    AddNewBirthday.saveDataToDatabase saveRunnable = new AddNewBirthday.saveDataToDatabase(title, contactNum, message, mediaString, autoTypeText);
                     new Thread(saveRunnable).start();
 
                     refreshActivity();
 
                     //Intent intent = new Intent(AddNewBirthday.this, Services.class);
-                   // startService(intent);
+                    // startService(intent);
 
-                   // Log.e("Service", "Service started.");
+                    // Log.e("Service", "Service started.");
 
                 } else {
                     Toast.makeText(AddNewBirthday.this, "Please fill the fields properly!.", Toast.LENGTH_LONG).show();
@@ -457,13 +470,15 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
         String contactNum;
         String message;
         String media;
+        String autoT;
 
-        saveDataToDatabase(String name, String contactNum, String message, String media) {
+        saveDataToDatabase(String name, String contactNum, String message, String media, String autoText) {
 
             this.name = name;
             this.contactNum = contactNum;
             this.message = message;
             this.media = media;
+            this.autoT = autoText;
 
         }
 
@@ -478,7 +493,8 @@ public class AddNewBirthday extends AppCompatActivity implements TimePickerDialo
             contentValues.put("BIRTHDAY_CONTENT", message);
             contentValues.put("BIRTHDAY_SEND_TIME", setTime);
             contentValues.put("BIRTHDAY_MEDIA", media);
-            contentValues.put("BIRTHDAY_PAUSE",0);
+            contentValues.put("BIRTHDAY_PAUSE", 0);
+            contentValues.put("BIRTHDAY_AUTO", autoT);
 
             long res = mydb.insert("BIRTHDAY_DATA", null, contentValues);
 

@@ -179,9 +179,9 @@ public class AlertReceiver extends BroadcastReceiver {
         int bound = messages.size();
 
         Random rand = new Random();
-        int addMinutes = rand.nextInt(bound);
+        int randomNumber = rand.nextInt(bound);
 
-        String res_message = messages.get(addMinutes);
+        String res_message = messages.get(randomNumber);
 
         if(ContextCompat.checkSelfPermission(context, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED){
             Log.e("Message permission"," Not granted.");
@@ -194,7 +194,10 @@ public class AlertReceiver extends BroadcastReceiver {
             Intent intent = new Intent(context, smsSentReceiver.class);
             intent.putExtra("Sent","SENT");
             intent.putExtra("Title",title);
+            intent.putExtra("Type", repeatType);
             intent.putExtra("ID",id);
+            intent.putExtra("number",number);
+            intent.putExtra("message", res_message);
             PendingIntent sentPI = PendingIntent.getBroadcast(context,1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 

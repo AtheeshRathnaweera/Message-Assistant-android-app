@@ -10,6 +10,7 @@ public class BirthdayMessageObject {
     private String sendTime;
     private String media;
     private int pause;
+    private String autoText;
 
     public BirthdayMessageObject(){
 
@@ -17,7 +18,7 @@ public class BirthdayMessageObject {
     }
 
     BirthdayMessageObject(int id,  String name, String Birthdate, String contactNumber, String message,
-                  String sendTime, String media, int pause){
+                  String sendTime, String media, int pause, String autoText){
 
         this.id = id;
         this.name = name;
@@ -27,7 +28,16 @@ public class BirthdayMessageObject {
         this.sendTime = sendTime;
         this.media = media;
         this.pause = pause;
+       this.autoText = autoText;
 
+    }
+
+    public String getAutoText() {
+        return autoText;
+    }
+
+    public void setAutoText(String autoText) {
+        this.autoText = autoText;
     }
 
     public String getBirthdate() {

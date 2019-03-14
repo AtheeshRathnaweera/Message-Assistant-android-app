@@ -14,6 +14,9 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.telephony.SmsManager;
 import android.util.Log;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 public class smsSentReceiver extends BroadcastReceiver{
 
     @Override
@@ -23,12 +26,16 @@ public class smsSentReceiver extends BroadcastReceiver{
         String titleRes = null;
         String resID = null;
         String resultText = null;
+        String resNumber = null;
+        String content = null;
+        String mesType = null;
+
 
         switch (getResultCode())
         {
             case Activity.RESULT_OK:
                 Log.e("Message sent","SMS sent");
-                resultText = "Sent successfully!.";
+                resultText = "Sent successfully!";
                 break;
             case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
                 Log.e("Message sent","Generic failure");
@@ -49,8 +56,12 @@ public class smsSentReceiver extends BroadcastReceiver{
 
         try{
             resString = intent.getExtras().getString("Sent");
-            titleRes = intent.getExtras().getString("Title");
+
             resID = intent.getExtras().getString("ID");
+            titleRes = intent.getExtras().getString("Title");
+            resNumber = intent.getExtras().getString("number");
+            content = intent.getExtras().getString("message");
+            mesType = intent.getExtras().getString("Type");
 
         }catch (NullPointerException e){
             e.printStackTrace();
@@ -80,33 +91,62 @@ public class smsSentReceiver extends BroadcastReceiver{
                     .setLights(Color.RED, 3000, 3000)
                     .setVisibility(1);
 
-            notificationManager.notify(2, builder.build());
+            notificationManager.notify(4, builder.build());
 
-            updateTheOnceSent(resID, context);
+            updateTheOnceSent(resID, context, titleRes, resNumber, content, resultText, mesType);
 
         }
     }
 
-    private void updateTheOnceSent(String id, Context context){
+    public void updateTheOnceSent(String id, Context context, String title, String number, String message, String status, String type){
 
         DatabaseHandler databaseHandler = new DatabaseHandler(context);
         SQLiteDatabase mydbForWrite = databaseHandler.getWritableDatabase();
 
+        Calendar c = Calendar.getInstance();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
+
+        String nowTime = format.format(c.getTime());
+
         ContentValues contentValues = new ContentValues();
+        ContentValues historyValues = new ContentValues();
 
-        contentValues.put("ONCE_SEND", 1);
+        if(type.equals("Once")){
+            contentValues.put("ONCE_SEND", 1);
 
-        int res = mydbForWrite.update("MESSAGE_DATA", contentValues, "MESSAGE_ID = ?", new String[]{id});
+            int res = mydbForWrite.update("MESSAGE_DATA", contentValues, "MESSAGE_ID = ? ", new String[]{id});
 
-        if (res > 0) {
-            Log.e("Update OnceSendColumn", "Succeed.");
+            if (res > 0) {
+                Log.e("Update OnceSendColumn", " Updated only once type Succeed.");
 
 
-        } else {
-            Log.e("Update OnceSendColumn", "nothing updated. Error occurred.");
+            } else {
+                Log.e("Update OnceSendColumn", "nothing updated. Error occurred.");
+
+            }
+        }
+
+
+
+        historyValues.put("HISTORY_MES_ID",id);
+        historyValues.put("HISTORY_MES_TITLE",title);
+        historyValues.put("HISTORY_MES_TYPE", type);
+        historyValues.put("HISTORY_MES_NUMBER",number);
+        historyValues.put("HISTORY_MES_CONTENT",message);
+        historyValues.put("HISTORY_SENT_TIME",nowTime);
+        historyValues.put("HISTORY_STATUS",status);
+
+        long done = mydbForWrite.insert("HISTORY_TABLE", null, historyValues);
+
+        if (done == -1){
+            Log.e("Add to history table", "Not added. Error occured.");
+
+        }else{
+            Log.e("Add to history table", "Added successfully.");
 
         }
 
         mydbForWrite.close();
     }
+
 }

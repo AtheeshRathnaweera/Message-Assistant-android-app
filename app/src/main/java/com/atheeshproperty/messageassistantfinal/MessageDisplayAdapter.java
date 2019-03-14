@@ -84,7 +84,6 @@ public class MessageDisplayAdapter extends RecyclerView.Adapter<MessageDisplayAd
 
         Log.e("MessageDisplayAdapter","Bind method started.");
 
-
         SimpleDateFormat fullTimeFormatter = new SimpleDateFormat("HH:mm:ss");
         SimpleDateFormat newFormat = new SimpleDateFormat("HH:mm");
 
@@ -217,6 +216,7 @@ public class MessageDisplayAdapter extends RecyclerView.Adapter<MessageDisplayAd
             }else{
                 Log.d("Once","Once message not sent yet.");
                 messageViewHolder.notification.setImageResource(R.drawable.ic_check_circle_black_24dp);
+
             }
 
         }

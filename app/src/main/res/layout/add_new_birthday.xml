@@ -8,7 +8,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingStart="5dp"
         android:paddingEnd="5dp">
@@ -75,6 +75,8 @@
                 android:src="@drawable/ic_access_time_black_24dp" />
         </TableRow>
 
+
+
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -113,33 +115,10 @@
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Message :"
-                android:textSize="17sp"
-                android:textColor="@color/black"/>
-
-            <EditText
-                android:id="@+id/message"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textCapSentences|textMultiLine"
-                android:textSize="17sp"
-                android:maxLength="159"
-                android:textColor="@color/grey"
-                android:backgroundTint="@color/grey"/>
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingBottom="5dp"
-            android:paddingTop="5dp">
+            android:paddingTop="5dp"
+            android:layout_marginTop="5dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -175,10 +154,35 @@
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Message :"
+                android:textSize="17sp"
+                android:textColor="@color/black"/>
+
+            <EditText
+                android:id="@+id/message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences|textMultiLine"
+                android:textSize="17sp"
+                android:maxLength="159"
+                android:textColor="@color/grey"
+                android:backgroundTint="@color/grey"/>
+        </TableRow>
+
+
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingBottom="5dp"
-            android:paddingTop="5dp">
+            android:paddingTop="10dp">
 
 
             <TextView
@@ -215,6 +219,54 @@
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingBottom="5dp"
+            android:paddingTop="10dp">
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start|center_vertical"
+                android:text="Auto text message :"
+                android:textSize="17sp"
+                android:textColor="@color/black"/>
+
+            <RadioGroup
+                android:id="@+id/autoRadioGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|center_vertical"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/yesButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="Yes"
+                    android:textSize="16sp"
+                    android:textColor="@color/grey"/>
+
+                <RadioButton
+                    android:id="@+id/noButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No"
+                    android:textSize="16sp"
+                    android:layout_marginStart="5dp"
+                    android:textColor="@color/grey"
+                    android:layout_marginLeft="5dp" />
+
+            </RadioGroup>
+
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:gravity="center_vertical|right"
             android:orientation="horizontal"
             android:paddingBottom="5dp"
@@ -242,6 +294,8 @@
 
 
         </TableRow>
+
+
 
     </LinearLayout>
 

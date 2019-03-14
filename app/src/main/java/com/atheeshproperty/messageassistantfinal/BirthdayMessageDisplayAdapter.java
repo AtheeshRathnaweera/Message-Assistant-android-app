@@ -39,6 +39,7 @@ public class BirthdayMessageDisplayAdapter extends RecyclerView.Adapter<Birthday
         public TextView sendTime;
         public CardView itemCard;
         public TextView monthDisplay, dateDisplay;
+        public TextView autoText;
         private ImageButton notification;
         boolean paused;
 
@@ -51,6 +52,8 @@ public class BirthdayMessageDisplayAdapter extends RecyclerView.Adapter<Birthday
             sendTime = itemView.findViewById(R.id.displaySendTime);
             itemCard = itemView.findViewById(R.id.messageitemcard);
             notification = itemView.findViewById(R.id.pauseButton);
+
+            autoText = itemView.findViewById(R.id.autoText);
 
             monthDisplay = itemView.findViewById(R.id.displayBirthdayMonth);
             dateDisplay = itemView.findViewById(R.id.displayBirthdayDate);
@@ -97,6 +100,7 @@ public class BirthdayMessageDisplayAdapter extends RecyclerView.Adapter<Birthday
         birthdayMessageViewHolder.contactNumber.setText(cardData.get(i).getContactNumber());
        // birthdayMessageViewHolder.sendTime.setVisibility(View.INVISIBLE);
         birthdayMessageViewHolder.sendTime.setText(cardData.get(i).getSendTime());
+        birthdayMessageViewHolder.autoText.setText(cardData.get(i).getAutoText());
 
         birthdayMessageViewHolder.monthDisplay.setText(birthMonth);
         birthdayMessageViewHolder.dateDisplay.setText(birthDate);
@@ -115,7 +119,6 @@ public class BirthdayMessageDisplayAdapter extends RecyclerView.Adapter<Birthday
             @Override
             public void onClick(View v) {
                 if(birthdayMessageViewHolder.paused ){
-
 
                     birthdayMessageViewHolder.notification.setImageResource(R.drawable.ic_notifications_active_black_24dp);
                     updateThePause(cardData.get(i).getId(),0);
@@ -156,6 +159,7 @@ public class BirthdayMessageDisplayAdapter extends RecyclerView.Adapter<Birthday
                         in.putExtra("Message",cardData.get(i).getMessage());
                         in.putExtra("time",cardData.get(i).getSendTime());
                         in.putExtra("media",cardData.get(i).getMedia());
+                        in.putExtra("auto",cardData.get(i).getAutoText());
 
                         myContext.startActivity(in);
 

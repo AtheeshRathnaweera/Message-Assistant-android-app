@@ -41,7 +41,7 @@ import java.util.List;
 
 public class UpdateABirthday extends AppCompatActivity implements TimePickerDialog.OnTimeSetListener, DatePickerDialog.OnDateSetListener {
 
-    private String setTime, setDate;
+    private String setTime, setDate, autoText;
     private TextView time_text, contact_number, birth_date;
     private EditText person_name, content;
     private ImageButton date_picker, contact_list_open, message_time_picker;
@@ -49,6 +49,9 @@ public class UpdateABirthday extends AppCompatActivity implements TimePickerDial
     private CheckBox whatsapp, TextMessage;
 
     private Button cancel_button, save_button;
+
+    private RadioGroup timeGroup;
+    private RadioButton selectedRadioButton;
 
     private DatabaseHandler databseHelper;
     private SQLiteDatabase mydb;
@@ -73,6 +76,9 @@ public class UpdateABirthday extends AppCompatActivity implements TimePickerDial
         whatsapp = findViewById(R.id.message_type_whatsapp);
         TextMessage = findViewById(R.id.message_type_text);
 
+        timeGroup = findViewById(R.id.autoRadioGroup);
+        selectedRadioButton = findViewById(R.id.yesButton);
+
         cancel_button = findViewById(R.id.cancel);
         save_button = findViewById(R.id.save);
 
@@ -93,8 +99,16 @@ public class UpdateABirthday extends AppCompatActivity implements TimePickerDial
         setTime = intent.getExtras().getString("time");
         media = intent.getExtras().getString("media");
         setDate = intent.getExtras().getString("Bdate");
+        autoText = intent.getExtras().getString("auto");
 
         Log.e("Checking"," Person name: "+person_name.getText());
+
+        if (autoText.equals("Yes")) {
+            timeGroup.check(R.id.yesButton);
+        } else {
+            timeGroup.check(R.id.noButton);
+        }
+
 
         message_time_picker.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -436,6 +450,10 @@ public class UpdateABirthday extends AppCompatActivity implements TimePickerDial
                     media = media + 2;
                 }
 
+                int selectedId = timeGroup.getCheckedRadioButtonId();//Get selected repeat button id
+                selectedRadioButton = findViewById(selectedId);
+                String autoTypeText = (String) selectedRadioButton.getText();//get selected repeat time button text
+
                 String mediaString = String.valueOf(media);
 
                 if (!whatsapp.isChecked() && !TextMessage.isChecked()) {
@@ -444,7 +462,7 @@ public class UpdateABirthday extends AppCompatActivity implements TimePickerDial
 
                 if (validatingTheForm(title, contactNum, message)) {
 
-                    UpdateABirthday.updateDataToDatabase saveRunnable = new UpdateABirthday.updateDataToDatabase(id,title, contactNum, message, mediaString);
+                    UpdateABirthday.updateDataToDatabase saveRunnable = new UpdateABirthday.updateDataToDatabase(id,title, contactNum, message, mediaString, autoTypeText);
                     new Thread(saveRunnable).start();
 
                     refreshActivity();
@@ -470,14 +488,16 @@ public class UpdateABirthday extends AppCompatActivity implements TimePickerDial
         String message;
         String media;
         String idRes;
+        String autoTyp;
 
-        updateDataToDatabase(String id,String name, String contactNum, String message, String media) {
+        updateDataToDatabase(String id,String name, String contactNum, String message, String media, String autoT) {
 
             this.name = name;
             this.contactNum = contactNum;
             this.message = message;
             this.media = media;
             this.idRes = id;
+            this.autoTyp = autoT;
 
         }
 
@@ -493,6 +513,7 @@ public class UpdateABirthday extends AppCompatActivity implements TimePickerDial
             contentValues.put("BIRTHDAY_SEND_TIME", setTime);
             contentValues.put("BIRTHDAY_MEDIA", media);
             contentValues.put("BIRTHDAY_PAUSE",0);
+            contentValues.put("BIRTHDAY_AUTO",autoTyp);
 
             int res = mydb.update("BIRTHDAY_DATA", contentValues, "BIRTHDAY_ID = ?", new String[]{idRes});
 

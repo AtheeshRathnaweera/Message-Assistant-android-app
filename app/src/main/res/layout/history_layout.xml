@@ -5,7 +5,7 @@
 
 
     <LinearLayout
-        android:id="@+id/recyclerHolder"
+        android:id="@+id/HistoryRecyclerHolder"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/white"
@@ -14,10 +14,10 @@
 
 
         <android.support.v7.widget.RecyclerView
-            android:id="@+id/HomeMessageRecyclerView"
+            android:id="@+id/HistoryRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="15dp" />
+            android:paddingTop="12dp" />
 
         <TextView
             android:id="@+id/empty_view"

@@ -92,7 +92,7 @@
                 android:textSize="17sp"
                 android:maxLength="159"
                 android:textColor="@color/grey"
-                android:backgroundTint="@color/grey"/>
+                android:backgroundTint="@color/grey" />
         </TableRow>
 
         <TableRow
@@ -115,7 +115,8 @@
                 android:textSize="17sp"
                 android:textColor="@color/grey"
                 android:maxLength="159"
-                android:backgroundTint="@color/grey"/>
+                android:backgroundTint="@color/grey"
+                android:hint="Optional message 1"/>
         </TableRow>
 
         <TableRow
@@ -138,7 +139,8 @@
                 android:textSize="17sp"
                 android:maxLength="159"
                 android:textColor="@color/grey"
-                android:backgroundTint="@color/grey"/>
+                android:backgroundTint="@color/grey"
+                android:hint="Optional message 2"/>
         </TableRow>
 
         <TableRow
@@ -161,7 +163,8 @@
                 android:textSize="17sp"
                 android:maxLength="159"
                 android:textColor="@color/grey"
-                android:backgroundTint="@color/grey"/>
+                android:backgroundTint="@color/grey"
+                android:hint="Optional message 3"/>
         </TableRow>
 
         <TableRow

@@ -170,8 +170,9 @@ public class messages_fragment extends Fragment {
             Log.e("background status", "Populate home recycler background started.");
             List<MessageObject> messageItems = new ArrayList<>();
 
-            String allData = " SELECT * FROM MESSAGE_DATA ";
-            Cursor c = mydb.rawQuery(allData, null);
+            String allData = " SELECT * FROM MESSAGE_DATA WHERE ONCE_SEND = ?";
+
+            Cursor c = mydb.rawQuery(allData, new String[]{"0"});
 
             if (c.moveToFirst()) {
                 do {

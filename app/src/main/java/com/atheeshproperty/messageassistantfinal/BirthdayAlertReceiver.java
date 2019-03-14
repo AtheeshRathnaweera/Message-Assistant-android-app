@@ -32,7 +32,7 @@ public class BirthdayAlertReceiver extends BroadcastReceiver {
     DatabaseHandler databaseHandler;
     SQLiteDatabase mydbForWrite;
 
-    String title, phoneNumber,message;
+    String title, phoneNumber,message, autoT;
     int paused;
 
     @Override
@@ -64,6 +64,7 @@ public class BirthdayAlertReceiver extends BroadcastReceiver {
                 phoneNumber = c.getString(c.getColumnIndex("BIRTHDAY_CONTACT_NUMBER"));
                 message = c.getString(c.getColumnIndex("BIRTHDAY_CONTENT"));
                 paused=c.getInt(c.getColumnIndex("BIRTHDAY_PAUSE"));
+                autoT = c.getString(c.getColumnIndex("BIRTHDAY_AUTO"));
 
 
                 if(paused == 0){
@@ -170,9 +171,71 @@ public class BirthdayAlertReceiver extends BroadcastReceiver {
             notificationManager.notify(entryID, builder.build());
         }
 
+        if(autoT.equals("Yes")){
+            String stringId = String.valueOf(entryID);
+            sendAText(number,message,context, stringId);
+
+        }
 
 
+    }
 
+    private void sendAText(String number, String messages, Context context, String id) {
+
+
+        if(ContextCompat.checkSelfPermission(context, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED){
+            Log.e("Message permission"," Not granted.");
+            permissionNeededNotification(context);
+
+        }else{
+
+            Log.e("Text message","Text message create intent code started");
+
+            Intent intent = new Intent(context, smsSentReceiver.class);
+            intent.putExtra("Sent","SENT");
+            intent.putExtra("Title",title);
+            intent.putExtra("Type","Birthday");
+            intent.putExtra("ID",id);
+            intent.putExtra("number",number);
+            intent.putExtra("message", messages);
+            PendingIntent sentPI = PendingIntent.getBroadcast(context,1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+
+            SmsManager sms = SmsManager.getDefault();
+            sms.sendTextMessage(number, null, messages, sentPI, null);
+
+            Log.e("Text message","text message sent. phone number : "+number);
+        }
+
+    }
+
+    private void permissionNeededNotification(Context context){
+        //Pop up a notification to request message permission
+
+        Intent in = new Intent(context, MainActivity.class);//Intent to open the app when notification click
+        PendingIntent contentIntent = PendingIntent.getActivity(context, 0, in, 0);
+
+        final long[] pattern = new long[]{2000, 2000, 3000};
+        lightUpTheScreen(context);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+                .setSmallIcon(R.drawable.ic_access_time_black_24dp)
+                .setContentTitle("Message Assistant !")
+                .setContentText("Please give SMS permission to send text messages.")
+                .setStyle(new NotificationCompat.BigTextStyle().bigText("Please give SMS permission to send text messages."))
+                .setVibrate(pattern)
+                .setPriority(Notification.PRIORITY_MAX)
+                .setAutoCancel(true)
+                .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
+                .setContentIntent(contentIntent)
+                .setCategory(NotificationCompat.CATEGORY_ALARM)
+                //.addAction(R.drawable.done, "Stop Notifying me", parseintent)
+                .setLights(Color.RED, 3000, 3000)
+                .setVisibility(1);
+
+        notificationManager.notify(1, builder.build());
 
     }
 
