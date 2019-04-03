@@ -1,5 +1,6 @@
 package com.atheeshproperty.messageassistantfinal;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
@@ -13,6 +14,8 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -24,6 +27,7 @@ public class History_Display_Adapter extends RecyclerView.Adapter<History_Displa
     private Context myContext;
     private List<HistoryObject> cardData;
     private String lastDate = null;
+    private Date todayDate;
 
     public History_Display_Adapter(Context context, List<HistoryObject> receivedObjects){
         myContext = context;
@@ -61,16 +65,26 @@ public class History_Display_Adapter extends RecyclerView.Adapter<History_Displa
         Log.e("History_Display_Adapter","History Adapter started.");
         LayoutInflater myinflater = LayoutInflater.from(myContext);
         View view = myinflater.inflate(R.layout.history_item_display, viewGroup,  false);
+        todayDate = getTodayDate();//Get today date and store it as todayDate
         return new History_Display_Adapter.HistoryViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull HistoryViewHolder historyViewHolder, int i) {
 
+
         if(lastDate == null){
             lastDate = getTimePart(cardData.get(i).getSendTime(),2);
             historyViewHolder.date.setVisibility(View.VISIBLE);
-            historyViewHolder.date.setText(lastDate);
+
+            if(checkWhetherToday(lastDate)){
+                historyViewHolder.date.setText("Today");
+            }else{
+                historyViewHolder.date.setText(lastDate);
+            }
+
+
+
         }else{
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
             String recentDate = getTimePart(cardData.get(i).getSendTime(),2);
@@ -83,7 +97,12 @@ public class History_Display_Adapter extends RecyclerView.Adapter<History_Displa
 
                 if(recent.after(lastStored)){
                     historyViewHolder.date.setVisibility(View.VISIBLE);
-                    historyViewHolder.date.setText(recentDate);
+
+                    if(checkWhetherToday(recentDate)){
+                        historyViewHolder.date.setText("Today");
+                    }else{
+                        historyViewHolder.date.setText(recentDate);
+                    }
                     lastDate = recentDate;
                 }
             } catch (ParseException e) {
@@ -119,6 +138,45 @@ public class History_Display_Adapter extends RecyclerView.Adapter<History_Displa
 
     }
 
+    private Date getTodayDate(){//Get today date
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar c = Calendar.getInstance();
+
+       String to = formatter.format(c.getTime());
+       Date today = null;
+
+        try {
+            today =  formatter.parse(to);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return today;
+
+    }
+
+    private boolean checkWhetherToday(String date){
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        Date received = null;
+        Boolean result = false;
+
+        try {
+           received = formatter.parse(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        if(received != null & todayDate != null){
+
+            if(received.compareTo(todayDate) == 0){// 0 when equals
+                result = true;
+            }
+        }
+
+        return result;
+
+    }
+
 
 
     private String getTimePart(String fullDateAndTime, int requestType){
@@ -127,7 +185,7 @@ public class History_Display_Adapter extends RecyclerView.Adapter<History_Displa
 
         SimpleDateFormat fullFormat = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
 
-        Calendar c = Calendar.getInstance();
+
 
         try {
             receivedFull = fullFormat.parse(fullDateAndTime);
