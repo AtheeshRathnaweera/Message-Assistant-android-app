@@ -221,7 +221,7 @@ public class AlertReceiver extends BroadcastReceiver {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
-                .setSmallIcon(R.drawable.ic_access_time_black_24dp)
+                .setSmallIcon(R.drawable.message_assistant_notification_icon_small)
                 .setContentTitle("Message Assistant !")
                 .setContentText("Please give SMS permission to send text messages.")
                 .setStyle(new NotificationCompat.BigTextStyle().bigText("Please give SMS permission to send text messages."))

@@ -154,7 +154,7 @@ public class BirthdayAlertReceiver extends BroadcastReceiver {
             Log.e("whatsapp installed","no");
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
-                    .setSmallIcon(R.drawable.ic_access_time_black_24dp)
+                    .setSmallIcon(R.drawable.message_assistant_notification_icon_small)
                     .setContentTitle("It's "+title+" s birthday today!")
                     .setContentText("Say Happy Birthday to "+title+ " !")
                     //.setStyle(new NotificationCompat.BigTextStyle().bigText("Please give SMS permission to send text messages."))

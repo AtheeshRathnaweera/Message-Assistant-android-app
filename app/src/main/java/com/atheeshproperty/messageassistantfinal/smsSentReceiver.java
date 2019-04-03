@@ -77,7 +77,7 @@ public class smsSentReceiver extends BroadcastReceiver{
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
-                    .setSmallIcon(R.drawable.ic_access_time_black_24dp)
+                    .setSmallIcon(R.drawable.message_assistant_notification_icon_small)
                     .setContentTitle("Message title: "+titleRes)
                     .setContentText("Status: "+resultText)
                     //.setStyle(new NotificationCompat.BigTextStyle().setBigContentTitle("Message title: "+titleRes).bigText("Status: Message sent!"))
