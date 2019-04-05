@@ -19,6 +19,7 @@
         android:background="@drawable/history_date_label_background"
         android:textColor="@color/white"
         android:elevation="7dp"
+        android:visibility="gone"
         />
 
     <android.support.v7.widget.CardView

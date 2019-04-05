@@ -107,7 +107,7 @@ public class UpdateAMesage extends AppCompatActivity implements TimePickerDialog
         contact_number.setText(intent.getExtras().getString("Number"));
 
         message_one.setText(intent.getExtras().getString("mOne"));
-        message_two.setText(intent.getExtras().getString("mThree"));
+        message_two.setText(intent.getExtras().getString("mTwo"));
         message_three.setText(intent.getExtras().getString("mThree"));
         message_four.setText(intent.getExtras().getString("mFour"));
         time_text.setText(intent.getExtras().getString("time"));

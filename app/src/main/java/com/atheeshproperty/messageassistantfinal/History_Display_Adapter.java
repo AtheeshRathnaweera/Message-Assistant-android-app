@@ -28,6 +28,7 @@ public class History_Display_Adapter extends RecyclerView.Adapter<History_Displa
     private List<HistoryObject> cardData;
     private String lastDate = null;
     private Date todayDate;
+    private Date lastStored;
 
     public History_Display_Adapter(Context context, List<HistoryObject> receivedObjects){
         myContext = context;
@@ -79,32 +80,36 @@ public class History_Display_Adapter extends RecyclerView.Adapter<History_Displa
 
             if(checkWhetherToday(lastDate)){
                 historyViewHolder.date.setText("Today");
+                Log.e("Date is equal to today","Set text as today");
             }else{
                 historyViewHolder.date.setText(lastDate);
             }
-
-
-
         }else{
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
             String recentDate = getTimePart(cardData.get(i).getSendTime(),2);
-            Date lastStored = null;
             Date recent = null;
+            Log.e("last date in bind metho","is not null");
 
             try {
                 lastStored = formatter.parse(lastDate);
                 recent = formatter.parse(recentDate);
 
-                if(recent.after(lastStored)){
+                if(recent.compareTo(lastStored) != 0){
                     historyViewHolder.date.setVisibility(View.VISIBLE);
 
                     if(checkWhetherToday(recentDate)){
-                        historyViewHolder.date.setText("Today");
+                        Log.e("check whether today","is true in bind method");
+                        historyViewHolder.date.setText("    Today    ");
                     }else{
+                        Log.e("check whether today","is false in bind method");
                         historyViewHolder.date.setText(recentDate);
                     }
                     lastDate = recentDate;
+                }else{
+                    historyViewHolder.date.setVisibility(View.GONE);
+                    Log.e("same date","Date label not added");
                 }
+
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -116,7 +121,7 @@ public class History_Display_Adapter extends RecyclerView.Adapter<History_Displa
         historyViewHolder.contactNumber.setText(cardData.get(i).getConatactNumber());
         historyViewHolder.time.setText(getTimePart(cardData.get(i).getSendTime(),1));
 
-        historyViewHolder.date.setText(getTimePart(cardData.get(i).getSendTime(),2));
+        //historyViewHolder.date.setText(getTimePart(cardData.get(i).getSendTime(),2));
 
         if((cardData.get(i).getStatus()).equals("Sent successfully!")){//Thitha
             historyViewHolder.status.setText("Sent");
@@ -151,6 +156,7 @@ public class History_Display_Adapter extends RecyclerView.Adapter<History_Displa
             e.printStackTrace();
         }
 
+        Log.e("getTodayDate method","Method started."+today);
         return today;
 
     }
@@ -159,16 +165,20 @@ public class History_Display_Adapter extends RecyclerView.Adapter<History_Displa
         @SuppressLint("SimpleDateFormat") SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         Date received = null;
         Boolean result = false;
+        Log.e("checkWhetherToday","Method started.");
 
         try {
            received = formatter.parse(date);
+           Log.e("date received","Received date: "+received);
         } catch (ParseException e) {
             e.printStackTrace();
         }
 
         if(received != null & todayDate != null){
+            Log.e("received and today date","is not null");
 
             if(received.compareTo(todayDate) == 0){// 0 when equals
+                Log.e("received and today d v","is equal");
                 result = true;
             }
         }
@@ -211,9 +221,6 @@ public class History_Display_Adapter extends RecyclerView.Adapter<History_Displa
                 return  returnText+" "+"PM";
 
             }
-
-
-
         }else{
             SimpleDateFormat onlyDateFormatter = new SimpleDateFormat("yyyy-MM-dd");
             String formattedDate = onlyDateFormatter.format(receivedFull);
